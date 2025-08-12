@@ -1,14 +1,17 @@
+// game/entities/entity.js
 class Entity {
   constructor({
-    name = "???",  // Nome do ser (desconhecido por padrão)
-    level = 1,     // Nível
-    maxHp = 100,   // Vida máxima
-    atk = 10,      // Ataque
-    def = 5,       // Defesa
-    spd = 5,       // Velocidade
-    gold = 0,      // Ouro
-    skills = [],   // Lista de habilidades
-  }) {
+    id = null,
+    name = "???",
+    level = 1,
+    maxHp = 100,
+    atk = 10,
+    def = 5,
+    spd = 5,
+    gold = 0,
+    skills = [],
+  } = {}) {
+    this.id = id || Entity.generateId();
     this.name = name;
     this.level = level;
 
@@ -22,46 +25,42 @@ class Entity {
     this.gold = gold;
     this.skills = skills;
 
-    this.effectStatus = []; // Lista de efeitos temporários
+    this.effectStatus = []; // ["poisoned", ...]
   }
 
-  // Checa se está vivo
+  static generateId() {
+    return `${Date.now().toString(36)}-${Math.floor(Math.random() * 10000)}`;
+  }
+
   isAlive() {
     return this.hp > 0;
   }
 
-  // Receber dano
   receiveDamage(damage) {
-    const effectiveDmg = Math.max(damage - this.def, 1); // mínimo de 1
+    const effectiveDmg = Math.max(damage - this.def, 1);
     this.hp = Math.max(this.hp - effectiveDmg, 0);
     return effectiveDmg;
   }
 
-  // Curar vida
   heal(amount) {
     this.hp = Math.min(this.hp + amount, this.maxHp);
   }
 
-  // Aplicar efeito temporário
   applyEffectStatus(effect) {
-    if (!this.effectStatus.includes(effect)) {
-      this.effectStatus.push(effect);
-    }
+    if (!this.effectStatus.includes(effect)) this.effectStatus.push(effect);
   }
 
-  // Remover efeito
   removeEffectStatus(effect) {
     this.effectStatus = this.effectStatus.filter(e => e !== effect);
   }
 
-  // Verificar se tem efeito
   hasEffectStatus(effect) {
     return this.effectStatus.includes(effect);
   }
 
-  // Retorna dados do ser
   getStats() {
     return {
+      id: this.id,
       name: this.name,
       level: this.level,
       hp: this.hp,
@@ -72,8 +71,18 @@ class Entity {
       gold: this.gold,
       skills: this.skills,
       effectStatus: this.effectStatus,
+      type: 'Entity'
     };
   }
+
+  toJSON() {
+    return {
+      __type: 'Entity',
+      ...this.getStats()
+    };
+  }
+
+  // fromJSON será implementado nas subclasses quando necessário
 }
 
 module.exports = Entity;

@@ -1,69 +1,47 @@
 // index.js
-const chalk = require("chalk");
-const Player = require("./game/entities/player");
-const Monster = require("./game/entities/monster");
+const chalk = require('chalk');
+const World = require('./game/core/world');
+const Player = require('./game/entities/player');
+const NPCManager = require('./game/managers/npcManager');
 
-// Criar Player
-const player = new Player({
-  name: "Herói",
-  level: 1,
-  maxHp: 100,
-  atk: 12,
-  def: 6,
-  spd: 5,
-  gold: 0
-});
+const world = World.getInstance();
 
-// Criar Monstro
-const goblin = new Monster({
-  name: "Goblin",
-  level: 1,
-  maxHp: 50,
-  atk: 8,
-  def: 3,
-  spd: 4,
-  goldDrop: 15,
-  xpDrop: 25,
-  type: "Humanoid"
-});
+// tenta carregar save e reconstruir
+const loaded = world.loadAndRebuild ? world.loadAndRebuild() : false;
+if (loaded) {
+  console.log(chalk.green('Save do mundo carregado.'));
+  const ticks = world.applyOfflineTicks ? world.applyOfflineTicks() : 0;
+  if (ticks) console.log(chalk.yellow(`Foram aplicados ${ticks} ticks offline.`));
+} else {
+  console.log(chalk.blue('Nenhum save encontrado — criando novo mundo.'));
 
-console.log(chalk.green(`\n${player.name} entra na batalha contra um ${goblin.type}: ${goblin.name}!\n`));
+  // criar um player e alguns NPCs de exemplo
+  const player = new Player({ name: 'Herói', level: 1 });
+  world.addEntity(player);
 
-// Função de combate simples
-function battle(p, m) {
-  let turn = 1;
-  while (p.isAlive() && m.isAlive()) {
-    console.log(chalk.blue(`--- Turno ${turn} ---`));
-
-    // Player ataca primeiro se for mais rápido
-    if (p.spd >= m.spd) {
-      const dmg = m.receiveDamage(p.atk);
-      console.log(chalk.green(`${p.name} causa ${dmg} de dano ao ${m.name}. HP inimigo: ${m.hp}/${m.maxHp}`));
-      if (!m.isAlive()) break;
-
-      const dmg2 = p.receiveDamage(m.atk);
-      console.log(chalk.red(`${m.name} causa ${dmg2} de dano ao ${p.name}. HP: ${p.hp}/${p.maxHp}`));
-    } else {
-      const dmg = p.receiveDamage(m.atk);
-      console.log(chalk.red(`${m.name} causa ${dmg} de dano ao ${p.name}. HP: ${p.hp}/${p.maxHp}`));
-      if (!p.isAlive()) break;
-
-      const dmg2 = m.receiveDamage(p.atk);
-      console.log(chalk.green(`${p.name} causa ${dmg2} de dano ao ${m.name}. HP inimigo: ${m.hp}/${m.maxHp}`));
-    }
-
-    turn++;
+  // generate some npcs
+  for (let i = 0; i < 3; i++) {
+    const npc = NPCManager.createNPC();
+    world.addEntity(npc);
   }
 
-  if (p.isAlive()) {
-    console.log(chalk.yellow(`\n${p.name} venceu a batalha!`));
-    const rewards = m.getRewards();
-    p.gold += rewards.gold;
-    p.gainXP(rewards.xp);
-    console.log(chalk.yellow(`Ganhou ${rewards.gold} ouro e ${rewards.xp} XP!`));
-  } else {
-    console.log(chalk.red(`\n${p.name} foi derrotado...`));
-  }
+  world.save();
 }
 
-battle(player, goblin);
+console.log(chalk.magenta(`Entidades atuais: ${world.entities.length}`));
+for (const e of world.entities) {
+  console.log(chalk.gray(`${e.name} (${e.constructor.name}) - HP: ${e.hp}/${e.maxHp}`));
+}
+
+// Modo: idle por padrão
+world.mode = 'idle';
+
+// iniciar loop do mundo (1 tick por segundo)
+world.startLoop(1000);
+
+// exemplo: parar depois de 10s (só pra demo) — retira se quiser mundo persistente infinito
+setTimeout(() => {
+  console.log(chalk.red('Demo finalizada — parando mundo.'));
+  world.stopLoop();
+  process.exit(0);
+}, 10000);

@@ -1,8 +1,10 @@
-const Entity = require("./entity");
+// game/entities/player.js
+const Entity = require('./entity');
 
 class Player extends Entity {
   constructor({
-    name,
+    id = null,
+    name = 'Herói',
     level = 1,
     maxHp = 100,
     atk = 10,
@@ -12,43 +14,75 @@ class Player extends Entity {
     skills = [],
     xp = 0,
     xpToLevelUp = 100,
-    inventory = [],
-  }) {
-    super({ name, level, maxHp, atk, def, spd, gold, skills });
+    inventory = []
+  } = {}) {
+    super({ id, name, level, maxHp, atk, def, spd, gold, skills });
     this.xp = xp;
     this.xpToLevelUp = xpToLevelUp;
     this.inventory = inventory;
   }
 
-  // Ganhar XP e verificar se sobe de nível
   gainXP(amount) {
     this.xp += amount;
+    const leveled = [];
     while (this.xp >= this.xpToLevelUp) {
       this.levelUp();
+      leveled.push(this.level);
     }
+    return leveled;
   }
 
-  // Subir de nível
   levelUp() {
     this.level++;
     this.xp -= this.xpToLevelUp;
-    this.xpToLevelUp = Math.floor(this.xpToLevelUp * 1.2); // aumenta a dificuldade
+    this.xpToLevelUp = Math.floor(this.xpToLevelUp * 1.2);
     this.maxHp += 20;
     this.atk += 5;
     this.def += 3;
     this.spd += 1;
-    this.hp = this.maxHp; // cura total ao subir de nível
-    console.log(`${this.name} subiu para o nível ${this.level}!`);
+    this.hp = this.maxHp;
   }
 
-  // Adicionar item ao inventário
   addItem(item) {
     this.inventory.push(item);
   }
 
-  // Remover item do inventário
   removeItem(item) {
     this.inventory = this.inventory.filter(i => i !== item);
+  }
+
+  getStats() {
+    return {
+      ...super.getStats(),
+      xp: this.xp,
+      xpToLevelUp: this.xpToLevelUp,
+      inventory: this.inventory,
+      type: 'Player'
+    };
+  }
+
+  toJSON() {
+    return {
+      __type: 'Player',
+      ...this.getStats()
+    };
+  }
+
+  static fromJSON(json) {
+    return new Player({
+      id: json.id,
+      name: json.name,
+      level: json.level,
+      maxHp: json.maxHp,
+      atk: json.atk,
+      def: json.def,
+      spd: json.spd,
+      gold: json.gold,
+      skills: json.skills,
+      xp: json.xp,
+      xpToLevelUp: json.xpToLevelUp,
+      inventory: json.inventory
+    });
   }
 }
 
