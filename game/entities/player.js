@@ -1,4 +1,4 @@
-const Entity = require("./Entity");
+const Entity = require("./entity");
 
 class Player extends Entity {
   constructor({

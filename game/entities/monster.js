@@ -1,5 +1,5 @@
 // game/monster.js
-const Entity = require("./Entity");
+const Entity = require("./entity");
 
 class Monster extends Entity {
   constructor({

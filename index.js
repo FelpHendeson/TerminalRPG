@@ -1,7 +1,7 @@
 // index.js
 const chalk = require("chalk");
-const Player = require("./game/Player");
-const Monster = require("./game/monster");
+const Player = require("./game/entities/player");
+const Monster = require("./game/entities/monster");
 
 // Criar Player
 const player = new Player({
