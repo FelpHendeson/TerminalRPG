@@ -1,0 +1,73 @@
+{
+  "items": {
+    "Poção de Cura": {
+      "name": "Poção de Cura",
+      "type": "consumable",
+      "description": "Restaura 50 pontos de vida",
+      "value": 20,
+      "effects": {
+        "heal": 50
+      },
+      "rarity": "common"
+    },
+    "Poção de Mana": {
+      "name": "Poção de Mana",
+      "type": "consumable",
+      "description": "Restaura 30 pontos de mana",
+      "value": 25,
+      "effects": {
+        "mana": 30
+      },
+      "rarity": "common"
+    },
+    "Espada de Ferro": {
+      "name": "Espada de Ferro",
+      "type": "weapon",
+      "description": "Uma espada básica de ferro",
+      "value": 100,
+      "effects": {
+        "atk": 5
+      },
+      "rarity": "common",
+      "equipSlot": "weapon"
+    },
+    "Espada de Aço": {
+      "name": "Espada de Aço",
+      "type": "weapon",
+      "description": "Uma espada resistente de aço",
+      "value": 250,
+      "effects": {
+        "atk": 8
+      },
+      "rarity": "uncommon",
+      "equipSlot": "weapon"
+    },
+    "Armadura de Couro": {
+      "name": "Armadura de Couro",
+      "type": "armor",
+      "description": "Armadura básica de couro",
+      "value": 80,
+      "effects": {
+        "def": 3
+      },
+      "rarity": "common",
+      "equipSlot": "armor"
+    },
+    "Erva Comum": {
+      "name": "Erva Comum",
+      "type": "material",
+      "description": "Erva medicinal comum",
+      "value": 5,
+      "effects": {},
+      "rarity": "common"
+    },
+    "Erva Rara": {
+      "name": "Erva Rara",
+      "type": "material",
+      "description": "Erva medicinal rara",
+      "value": 15,
+      "effects": {},
+      "rarity": "uncommon"
+    }
+  }
+}

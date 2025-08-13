@@ -5,7 +5,7 @@ const Player = require('../entities/player');
 
 class CharacterCreator {
   async start() {
-    console.clear();
+    // console.clear();
     console.log(chalk.cyan.bold('╔══════════════════════════════════════════════════════════════╗'));
     console.log(chalk.cyan.bold('║                    CRIAÇÃO DE PERSONAGEM                     ║'));
     console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝'));
@@ -42,10 +42,10 @@ class CharacterCreator {
         name: 'personality',
         message: 'Você se considera uma pessoa...',
         choices: [
-          { name: '🤗 Bondosa e compassiva', value: 'kind' },
-          { name: '⚖️  Neutra e equilibrada', value: 'neutral' },
-          { name: '🔥 Impulsiva e apaixonada', value: 'passionate' },
-          { name: '🧠 Fria e calculista', value: 'calculating' }
+          { name: 'Bondosa e compassiva', value: 'kind' },
+          { name: 'Neutra e equilibrada', value: 'neutral' },
+          { name: 'Impulsiva e apaixonada', value: 'passionate' },
+          { name: 'Fria e calculista', value: 'calculating' }
         ]
       }
     ]);
@@ -57,10 +57,10 @@ class CharacterCreator {
         name: 'dangerReaction',
         message: 'Em uma situação de perigo, você...',
         choices: [
-          { name: '🛡️  Protege os outros primeiro', value: 'protect' },
-          { name: '🧐 Avalia a situação com calma', value: 'analyze' },
-          { name: '⚡ Age instintivamente', value: 'instinct' },
-          { name: '📋 Recua para planejar', value: 'plan' }
+          { name: 'Protege os outros primeiro', value: 'protect' },
+          { name: 'Avalia a situação com calma', value: 'analyze' },
+          { name: 'Age instintivamente', value: 'instinct' },
+          { name: 'Recua para planejar', value: 'plan' }
         ]
       }
     ]);
@@ -72,10 +72,10 @@ class CharacterCreator {
         name: 'motivation',
         message: 'Qual é sua maior motivação?',
         choices: [
-          { name: '🦸 Ajudar e proteger os outros', value: 'hero' },
-          { name: '🔍 Descobrir a verdade sobre si mesmo', value: 'truth' },
-          { name: '⚔️  Provar sua força e coragem', value: 'strength' },
-          { name: '📚 Adquirir conhecimento e poder', value: 'knowledge' }
+          { name: 'Ajudar e proteger os outros', value: 'hero' },
+          { name: 'Descobrir a verdade sobre si mesmo', value: 'truth' },
+          { name: 'Provar sua força e coragem', value: 'strength' },
+          { name: 'Adquirir conhecimento e poder', value: 'knowledge' }
         ]
       }
     ]);
@@ -90,7 +90,7 @@ class CharacterCreator {
     // Mostrar resumo dos traços
     console.log(chalk.cyan('Seus traços de personalidade:'));
     traits.forEach(trait => {
-      console.log(chalk.gray(`  • ${trait.name}: ${trait.description}`));
+      console.log(chalk.gray(`${trait.name}: ${trait.description}`));
     });
     console.log();
 

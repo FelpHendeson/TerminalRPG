@@ -1,0 +1,93 @@
+{
+  "npcs": {
+    "Aldo": {
+      "name": "Aldo",
+      "role": "villager",
+      "level": 1,
+      "maxHp": 40,
+      "atk": 3,
+      "def": 2,
+      "spd": 3,
+      "relationship": 0,
+      "dialogue": [
+        "Olá! Bem-vindo à nossa vila!",
+        "Precisa de alguma ajuda?",
+        "O Sábio da Vila é muito sábio, você deveria conversar com ele."
+      ],
+      "quests": ["village_exploration"],
+      "location": "Vila Inicial"
+    },
+    "Mira": {
+      "name": "Mira",
+      "role": "merchant",
+      "level": 2,
+      "maxHp": 50,
+      "atk": 4,
+      "def": 3,
+      "spd": 4,
+      "relationship": 0,
+      "dialogue": [
+        "Bem-vindo à minha loja!",
+        "Tenho os melhores produtos da região.",
+        "Se você trouxer materiais da floresta, posso pagar bem."
+      ],
+      "quests": ["herb_gathering"],
+      "location": "Vila Inicial",
+      "shop": {
+        "items": ["Poção de Cura", "Poção de Mana", "Espada de Ferro"],
+        "prices": [20, 25, 100]
+      }
+    },
+    "Sábio da Vila": {
+      "name": "Sábio da Vila",
+      "role": "quest_giver",
+      "level": 5,
+      "maxHp": 80,
+      "atk": 8,
+      "def": 6,
+      "spd": 5,
+      "relationship": 0,
+      "dialogue": [
+        "Ah, um novo viajante...",
+        "Você parece ter perdido suas memórias. Posso ajudar.",
+        "Há uma antiga magia que pode restaurar suas lembranças."
+      ],
+      "quests": ["memory_quest", "ancient_magic"],
+      "location": "Vila Inicial"
+    },
+    "Corvo": {
+      "name": "Corvo",
+      "role": "hunter",
+      "level": 3,
+      "maxHp": 60,
+      "atk": 6,
+      "def": 4,
+      "spd": 7,
+      "relationship": 0,
+      "dialogue": [
+        "A floresta é perigosa, mas também generosa.",
+        "Se você quiser caçar, posso te ensinar algumas técnicas.",
+        "Cuidado com os goblins na caverna."
+      ],
+      "quests": ["hunting_lesson", "goblin_hunt"],
+      "location": "Floresta Verde"
+    },
+    "Haku": {
+      "name": "Haku",
+      "role": "herbalist",
+      "level": 2,
+      "maxHp": 45,
+      "atk": 3,
+      "def": 2,
+      "spd": 4,
+      "relationship": 0,
+      "dialogue": [
+        "As plantas da floresta têm poderes curativos.",
+        "Se você coletar ervas para mim, posso te ensinar sobre elas.",
+        "Algumas ervas são raras e valiosas."
+      ],
+      "quests": ["herb_gathering", "rare_herbs"],
+      "location": "Floresta Verde"
+    }
+  }
+}

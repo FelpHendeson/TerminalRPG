@@ -4,13 +4,15 @@ const inquirer = require('inquirer');
 const Player = require('../entities/player');
 const StoryManager = require('./storyManager');
 const LocationManager = require('./locationManager');
-const { saveGame, loadGame } = require('./saveManager');
+const DataManager = require('./dataManager');
+const { saveGame, loadGame, hasSave } = require('./saveManager');
 
 class GameManager {
   constructor() {
     this.player = null;
     this.storyManager = new StoryManager();
     this.locationManager = new LocationManager();
+    this.dataManager = new DataManager();
     this.settings = {
       gameMode: 'active', // 'active' | 'idle'
       textSpeed: 'normal' // 'normal' | 'fast'
@@ -20,12 +22,7 @@ class GameManager {
   }
 
   hasCharacter() {
-    try {
-      const savedData = loadGame();
-      return savedData && savedData.player;
-    } catch (error) {
-      return false;
-    }
+    return hasSave();
   }
 
   loadGame() {
@@ -37,6 +34,7 @@ class GameManager {
         this.currentLocation = savedData.currentLocation || 'Vila Inicial';
         this.storyManager.loadProgress(savedData.storyProgress);
         this.locationManager.loadProgress(savedData.locationProgress);
+        console.log(chalk.green('✓ Jogo carregado com sucesso!'));
         return true;
       }
     } catch (error) {
@@ -55,8 +53,14 @@ class GameManager {
         locationProgress: this.locationManager.getProgress(),
         timestamp: Date.now()
       };
-      saveGame(saveData);
-      return true;
+      
+      if (saveGame(saveData)) {
+        console.log(chalk.green('✓ Jogo salvo com sucesso!'));
+        return true;
+      } else {
+        console.log(chalk.red('✗ Erro ao salvar jogo'));
+        return false;
+      }
     } catch (error) {
       console.log(chalk.red('Erro ao salvar jogo:', error.message));
       return false;
@@ -76,7 +80,7 @@ class GameManager {
   }
 
   getAvailableLocations() {
-    return this.locationManager.getAvailableLocations(this.currentLocation);
+    return this.locationManager.getAvailableLocations(this.currentLocation, this.dataManager);
   }
 
   getSettings() {
@@ -98,7 +102,7 @@ class GameManager {
     }
 
     this.gameState = 'story';
-    await this.storyManager.continueStory(this.player, this.currentLocation);
+    await this.storyManager.continueStory(this.player, this.currentLocation, this.dataManager);
     this.gameState = 'menu';
   }
 
@@ -114,12 +118,34 @@ class GameManager {
     this.currentLocation = locationName;
     console.log(chalk.green(`Chegou em ${locationName}!`));
     
-    const locationInfo = this.locationManager.getLocationInfo(locationName);
+    const locationInfo = this.dataManager.getLocation(locationName);
     if (locationInfo) {
       console.log(chalk.gray(locationInfo.description));
+      
+      // Mostrar NPCs disponíveis
+      const npcs = this.dataManager.getNPCsByLocation(locationName);
+      if (npcs.length > 0) {
+        console.log(chalk.yellow('\nNPCs encontrados:'));
+        npcs.forEach(npc => {
+          console.log(chalk.gray(`  • ${npc.name} (${npc.role})`));
+        });
+      }
+      
+      // Mostrar quests disponíveis
+      const quests = this.dataManager.getQuestsByLocation(locationName);
+      if (quests.length > 0) {
+        console.log(chalk.cyan('\nQuests disponíveis:'));
+        quests.forEach(quest => {
+          console.log(chalk.gray(`  • ${quest.title}: ${quest.description}`));
+        });
+      }
     }
     
     await this.wait(2000);
+  }
+
+  getDataManager() {
+    return this.dataManager;
   }
 
   async wait(ms) {

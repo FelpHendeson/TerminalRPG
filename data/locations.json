@@ -1,0 +1,68 @@
+{
+  "locations": {
+    "Vila Inicial": {
+      "name": "Vila Inicial",
+      "description": "Uma pequena vila acolhedora cercada por campos verdes. É aqui que sua jornada começou.",
+      "type": "village",
+      "availableActions": ["talk", "shop", "quest"],
+      "connections": ["Floresta Verde", "Estrada Principal"],
+      "level": 1,
+      "npcs": ["Aldo", "Mira", "Sábio da Vila"],
+      "quests": ["first_quest", "village_exploration"]
+    },
+    "Floresta Verde": {
+      "name": "Floresta Verde",
+      "description": "Uma densa floresta cheia de vida. O ar é fresco e você pode ouvir pássaros cantando.",
+      "type": "forest",
+      "availableActions": ["explore", "hunt", "gather"],
+      "connections": ["Vila Inicial", "Caverna dos Goblins"],
+      "level": 2,
+      "npcs": ["Corvo", "Haku"],
+      "quests": ["forest_exploration", "herb_gathering"],
+      "monsters": ["Lobo", "Urso", "Goblin"]
+    },
+    "Estrada Principal": {
+      "name": "Estrada Principal",
+      "description": "Uma estrada de terra que conecta várias regiões. Viajantes passam por aqui regularmente.",
+      "type": "road",
+      "availableActions": ["travel", "encounter"],
+      "connections": ["Vila Inicial", "Cidade Mercante"],
+      "level": 1,
+      "npcs": ["Viajante", "Mercador"],
+      "quests": ["escort_merchant"],
+      "monsters": ["Bandido", "Lobo"]
+    },
+    "Caverna dos Goblins": {
+      "name": "Caverna dos Goblins",
+      "description": "Uma caverna escura e úmida. Dizem que goblins vivem aqui, mas também há tesouros escondidos.",
+      "type": "dungeon",
+      "availableActions": ["explore", "combat", "loot"],
+      "connections": ["Floresta Verde"],
+      "level": 3,
+      "requires": {
+        "level": 2,
+        "quest": "first_quest"
+      },
+      "npcs": [],
+      "quests": ["goblin_hunt", "treasure_hunt"],
+      "monsters": ["Goblin", "Goblin Guerreiro", "Goblin Xamã"]
+    },
+    "Cidade Mercante": {
+      "name": "Cidade Mercante",
+      "description": "Uma cidade movimentada onde mercadores de todo o reino se encontram para fazer negócios.",
+      "type": "city",
+      "availableActions": ["shop", "quest", "guild"],
+      "connections": ["Estrada Principal"],
+      "level": 5,
+      "requires": {
+        "level": 3
+      },
+      "npcs": ["Mercador Rico", "Guild Master", "Alquimista"],
+      "quests": ["merchant_quest", "guild_quest"],
+      "monsters": []
+    }
+  }
+}
+
+
+
