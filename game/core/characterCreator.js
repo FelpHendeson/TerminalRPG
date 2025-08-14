@@ -2,6 +2,7 @@
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 const Player = require('../entities/player');
+const InterfaceUtils = require('../../utils/interfaceUtils');
 
 class CharacterCreator {
   constructor(gameManager) {
@@ -9,9 +10,7 @@ class CharacterCreator {
   }
 
   async start() {
-    console.log(chalk.cyan.bold('╔══════════════════════════════════════════════════════════════╗'));
-    console.log(chalk.cyan.bold('║                    CRIAÇÃO DE PERSONAGEM                     ║'));
-    console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝'));
+    InterfaceUtils.drawBox(['CRIAÇÃO DE PERSONAGEM'], 60);
     console.log();
 
     console.log(chalk.yellow('Bem-vindo ao Terminal RPG!'));

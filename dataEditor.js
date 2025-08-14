@@ -3,6 +3,7 @@ const chalk = require('chalk');
 const inquirer = require('inquirer');
 const fs = require('fs');
 const path = require('path');
+const InterfaceUtils = require('./utils/interfaceUtils');
 
 class DataEditor {
   constructor() {
@@ -12,9 +13,7 @@ class DataEditor {
 
   async start() {
     console.clear();
-    console.log(chalk.cyan.bold('╔══════════════════════════════════════════════════════════════╗'));
-    console.log(chalk.cyan.bold('║                    EDITOR DE DADOS DO JOGO                   ║'));
-    console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝'));
+    InterfaceUtils.drawBox(['EDITOR DE DADOS DO JOGO'], 60);
     console.log();
 
     await this.showMainMenu();
@@ -68,7 +67,8 @@ class DataEditor {
 
   async editLocations() {
     console.clear();
-    console.log(chalk.yellow('=== EDITOR DE LOCALIZAÇÕES ==='));
+    InterfaceUtils.drawBox(['EDITOR DE LOCALIZAÇÕES'], 60);
+    console.log();
     
     const locations = this.loadJSON('locations.json');
     const locationNames = Object.keys(locations.locations || {});
@@ -184,28 +184,32 @@ class DataEditor {
 
   async editNPCs() {
     console.clear();
-    console.log(chalk.yellow('=== EDITOR DE NPCs ==='));
+    InterfaceUtils.drawBox(['EDITOR DE NPCs'], 60);
+    console.log();
     console.log(chalk.gray('Funcionalidade em desenvolvimento...'));
     await this.wait(2000);
   }
 
   async editQuests() {
     console.clear();
-    console.log(chalk.yellow('=== EDITOR DE QUESTS ==='));
+    InterfaceUtils.drawBox(['EDITOR DE QUESTS'], 60);
+    console.log();
     console.log(chalk.gray('Funcionalidade em desenvolvimento...'));
     await this.wait(2000);
   }
 
   async editMonsters() {
     console.clear();
-    console.log(chalk.yellow('=== EDITOR DE MONSTROS ==='));
+    InterfaceUtils.drawBox(['EDITOR DE MONSTROS'], 60);
+    console.log();
     console.log(chalk.gray('Funcionalidade em desenvolvimento...'));
     await this.wait(2000);
   }
 
   async editItems() {
     console.clear();
-    console.log(chalk.yellow('=== EDITOR DE ITENS ==='));
+    InterfaceUtils.drawBox(['EDITOR DE ITENS'], 60);
+    console.log();
     console.log(chalk.gray('Funcionalidade em desenvolvimento...'));
     await this.wait(2000);
   }
