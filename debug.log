@@ -1,0 +1,31 @@
+[2025-08-14T02:07:50.117Z] [INFO] Verificando dependências...
+[2025-08-14T02:07:50.118Z] [SUCCESS] ✓ Módulo chalk carregado com sucesso
+[2025-08-14T02:07:50.356Z] [SUCCESS] ✓ Módulo inquirer carregado com sucesso
+[2025-08-14T02:07:50.360Z] [SUCCESS] ✓ Módulo ./game/core/gameManager carregado com sucesso
+[2025-08-14T02:07:50.360Z] [SUCCESS] ✓ Módulo ./game/core/characterCreator carregado com sucesso
+[2025-08-14T02:07:50.361Z] [SUCCESS] ✓ Módulo ./game/entities/player carregado com sucesso
+[2025-08-14T02:07:50.361Z] [SUCCESS] ✓ Módulo ./game/core/saveManager carregado com sucesso
+[2025-08-14T02:07:50.361Z] [SUCCESS] ✓ Módulo ./game/core/dataManager carregado com sucesso
+[2025-08-14T02:07:50.361Z] [INFO] Verificando arquivos de dados...
+[2025-08-14T02:07:50.362Z] [SUCCESS] ✓ Arquivo data/locations.json carregado (1 chaves)
+[2025-08-14T02:07:50.362Z] [SUCCESS] ✓ Arquivo data/npcs.json carregado (1 chaves)
+[2025-08-14T02:07:50.362Z] [SUCCESS] ✓ Arquivo data/quests.json carregado (1 chaves)
+[2025-08-14T02:07:50.363Z] [SUCCESS] ✓ Arquivo data/monsters.json carregado (1 chaves)
+[2025-08-14T02:07:50.363Z] [SUCCESS] ✓ Arquivo data/items.json carregado (1 chaves)
+[2025-08-14T02:07:50.363Z] [INFO] Verificando sistema de save...
+[2025-08-14T02:07:50.363Z] [SUCCESS] ✓ Save encontrado (player: sim)
+[2025-08-14T02:07:50.364Z] [INFO]   - Nome: Kaelus Costaferrum
+[2025-08-14T02:07:50.364Z] [INFO]   - Nível: 1
+[2025-08-14T02:07:50.364Z] [INFO]   - HP: 100/100
+[2025-08-14T02:07:50.365Z] [INFO] Testando criação de personagem...
+[2025-08-14T02:07:50.365Z] [SUCCESS] ✓ Personagem de teste criado: Teste
+[2025-08-14T02:07:50.365Z] [INFO]   - HP: 100/100
+[2025-08-14T02:07:50.365Z] [INFO]   - Ataque: 10
+[2025-08-14T02:07:50.365Z] [SUCCESS] ✓ Serialização OK (16 propriedades)
+[2025-08-14T02:07:50.366Z] [SUCCESS] ✓ Deserialização OK: Teste
+[2025-08-14T02:07:50.366Z] [INFO] Testando GameManager...
+[2025-08-14T02:07:50.367Z] [SUCCESS] ✓ GameManager criado
+[2025-08-14T02:07:50.367Z] [INFO]   - Has character: true
+[2025-08-14T02:07:50.367Z] [INFO]   - Current location: Vila Inicial
+[2025-08-14T02:07:50.367Z] [ERROR] ✗ Erro no GameManager: testPlayer is not defined
+[2025-08-14T02:07:50.368Z] [WARNING] ⚠️  Encontrados 1 problemas:

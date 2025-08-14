@@ -4,8 +4,11 @@ const inquirer = require('inquirer');
 const Player = require('../entities/player');
 
 class CharacterCreator {
+  constructor(gameManager) {
+    this.gameManager = gameManager;
+  }
+
   async start() {
-    // console.clear();
     console.log(chalk.cyan.bold('╔══════════════════════════════════════════════════════════════╗'));
     console.log(chalk.cyan.bold('║                    CRIAÇÃO DE PERSONAGEM                     ║'));
     console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝'));
@@ -16,101 +19,115 @@ class CharacterCreator {
     console.log(chalk.gray('Vamos descobrir juntos quem você realmente é!'));
     console.log();
 
-    // Pergunta 1: Nome
-    const { name } = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'name',
-        message: 'Qual é o seu nome?',
-        validate: (input) => {
-          if (input.trim().length < 2) {
-            return 'O nome deve ter pelo menos 2 caracteres';
+    try {
+      // Pergunta 1: Nome
+      const { name } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Qual é o seu nome?',
+          validate: (input) => {
+            if (input.trim().length < 2) {
+              return 'O nome deve ter pelo menos 2 caracteres';
+            }
+            return true;
           }
-          return true;
         }
+      ]);
+      
+      console.log();
+      console.log(chalk.yellow('Agora vamos descobrir sua personalidade através de algumas perguntas...'));
+      console.log();
+
+      // Pergunta 2: Personalidade
+      const { personality } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'personality',
+          message: 'Você se considera uma pessoa...',
+          choices: [
+            { name: '🤗 Bondosa e compassiva', value: 'kind' },
+            { name: '⚖️  Neutra e equilibrada', value: 'neutral' },
+            { name: '🔥 Impulsiva e apaixonada', value: 'passionate' },
+            { name: '🧠 Fria e calculista', value: 'calculating' }
+          ]
+        }
+      ]);
+
+      // Pergunta 3: Reação ao perigo
+      const { dangerReaction } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'dangerReaction',
+          message: 'Em uma situação de perigo, você...',
+          choices: [
+            { name: '🛡️  Protege os outros primeiro', value: 'protect' },
+            { name: '🧐 Avalia a situação com calma', value: 'analyze' },
+            { name: '⚡ Age instintivamente', value: 'instinct' },
+            { name: '📋 Recua para planejar', value: 'plan' }
+          ]
+        }
+      ]);
+
+      // Pergunta 4: Motivação
+      const { motivation } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'motivation',
+          message: 'Qual é sua maior motivação?',
+          choices: [
+            { name: '🦸 Ajudar e proteger os outros', value: 'hero' },
+            { name: '🔍 Descobrir a verdade sobre si mesmo', value: 'truth' },
+            { name: '⚔️  Provar sua força e coragem', value: 'strength' },
+            { name: '📚 Adquirir conhecimento e poder', value: 'knowledge' }
+          ]
+        }
+      ]);
+
+      // Determinar traços baseados nas respostas
+      const traits = this.determineTraits(personality, dangerReaction, motivation);
+      
+      console.log();
+      console.log(chalk.green('✓ Personagem criado com sucesso!'));
+      console.log();
+
+      // Mostrar resumo dos traços
+      console.log(chalk.cyan('Seus traços de personalidade:'));
+      traits.forEach(trait => {
+        console.log(chalk.gray(`  • ${trait.name}: ${trait.description}`));
+      });
+      console.log();
+
+      // Criar o personagem
+      const player = this.createPlayer(name, traits);
+      
+      // Salvar o personagem usando a instância do GameManager
+      console.log('gameManager => ', this.gameManager);
+      console.log('player => ', player);
+      this.gameManager.setPlayer(player);
+      console.log('gameManager => ', this.gameManager.getPlayer());
+      const saveResult = this.gameManager.saveGame();
+      
+      if (saveResult) {
+        console.log(chalk.green('✓ Personagem salvo com sucesso!'));
+      } else {
+        console.log(chalk.red('✗ Erro ao salvar personagem!'));
       }
-    ]);
-    
-    console.log();
-    console.log(chalk.yellow('Agora vamos descobrir sua personalidade através de algumas perguntas...'));
-    console.log();
 
-    // Pergunta 2: Personalidade
-    const { personality } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'personality',
-        message: 'Você se considera uma pessoa...',
-        choices: [
-          { name: 'Bondosa e compassiva', value: 'kind' },
-          { name: 'Neutra e equilibrada', value: 'neutral' },
-          { name: 'Impulsiva e apaixonada', value: 'passionate' },
-          { name: 'Fria e calculista', value: 'calculating' }
-        ]
-      }
-    ]);
+      console.log(chalk.cyan('Pressione ENTER para começar sua aventura...'));
+      await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'continue',
+          message: ''
+        }
+      ]);
 
-    // Pergunta 3: Reação ao perigo
-    const { dangerReaction } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'dangerReaction',
-        message: 'Em uma situação de perigo, você...',
-        choices: [
-          { name: 'Protege os outros primeiro', value: 'protect' },
-          { name: 'Avalia a situação com calma', value: 'analyze' },
-          { name: 'Age instintivamente', value: 'instinct' },
-          { name: 'Recua para planejar', value: 'plan' }
-        ]
-      }
-    ]);
-
-    // Pergunta 4: Motivação
-    const { motivation } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'motivation',
-        message: 'Qual é sua maior motivação?',
-        choices: [
-          { name: 'Ajudar e proteger os outros', value: 'hero' },
-          { name: 'Descobrir a verdade sobre si mesmo', value: 'truth' },
-          { name: 'Provar sua força e coragem', value: 'strength' },
-          { name: 'Adquirir conhecimento e poder', value: 'knowledge' }
-        ]
-      }
-    ]);
-
-    // Determinar traços baseados nas respostas
-    const traits = this.determineTraits(personality, dangerReaction, motivation);
-    
-    console.log();
-    console.log(chalk.green('✓ Personagem criado com sucesso!'));
-    console.log();
-
-    // Mostrar resumo dos traços
-    console.log(chalk.cyan('Seus traços de personalidade:'));
-    traits.forEach(trait => {
-      console.log(chalk.gray(`${trait.name}: ${trait.description}`));
-    });
-    console.log();
-
-    // Criar o personagem
-    const player = this.createPlayer(name, traits);
-    
-    // Salvar o personagem
-    const GameManager = require('./gameManager');
-    const gameManager = new GameManager();
-    gameManager.setPlayer(player);
-    gameManager.saveGame();
-
-    console.log(chalk.cyan('Pressione ENTER para começar sua aventura...'));
-    await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'continue',
-        message: ''
-      }
-    ]);
+    } catch (error) {
+      console.log(chalk.red('Erro durante a criação do personagem:'));
+      console.log(chalk.red(error.message));
+      console.log(chalk.gray(error.stack));
+    }
   }
 
   determineTraits(personality, dangerReaction, motivation) {
