@@ -108,6 +108,99 @@ class InterfaceUtils {
   }
 
   /**
+   * Exibe um campo de input para o usuário inserir texto.
+   *
+   * @param {string} message - Mensagem/mensagem a ser exibida acima do campo de input.
+   * @param {string} [defaultValue=''] - Valor padrão para o campo de input.
+   * @param {Object} [options={}] - Opções de configuração do input.
+   * @param {boolean} [options.required=true] - Se o campo é obrigatório.
+   * @param {number} [options.minLength] - Comprimento mínimo do texto.
+   * @param {number} [options.maxLength] - Comprimento máximo do texto.
+   * @param {string} [options.pattern] - Regex pattern para validação.
+   * @param {Function} [options.validate] - Função de validação customizada.
+   * @param {string} [options.fieldName] - Nome do campo para mensagens de erro personalizadas.
+   * @returns {Promise<string>} Promise que resolve com o texto inserido pelo usuário.
+   * @example
+   * // Input simples obrigatório
+   * const playerName = await InterfaceUtils.showInput('Digite o nome do seu personagem:');
+   * 
+   * // Input com validações de comprimento
+   * const age = await InterfaceUtils.showInput('Digite sua idade:', '', {
+   *   minLength: 1,
+   *   maxLength: 3,
+   *   pattern: /^\d+$/,
+   *   fieldName: 'idade'
+   * });
+   * 
+   * // Input com validação customizada
+   * const email = await InterfaceUtils.showInput('Digite seu email:', '', {
+   *   validate: (input) => {
+   *     if (!input.includes('@')) return 'Email deve conter @';
+   *     if (!input.includes('.')) return 'Email deve conter domínio válido';
+   *     return true;
+   *   }
+   * });
+   */
+  static async showInput(message, defaultValue = '', options = {}) {
+    const {
+      required = true,
+      minLength,
+      maxLength,
+      pattern,
+      validate,
+      fieldName = 'campo'
+    } = options;
+
+    const promptConfig = {
+      type: 'input',
+      name: 'input',
+      message: chalk.cyan.bold(message),
+      default: defaultValue
+    };
+
+    // Função de validação que combina validações padrão e customizadas
+    const combinedValidate = (input) => {
+      // Validação de campo obrigatório
+      if (required && (!input || input.trim() === '')) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} é obrigatório.`;
+      }
+
+      // Validação de comprimento mínimo
+      if (minLength && input.trim().length < minLength) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} deve ter pelo menos ${minLength} caractere${minLength > 1 ? 's' : ''}.`;
+      }
+
+      // Validação de comprimento máximo
+      if (maxLength && input.trim().length > maxLength) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} deve ter no máximo ${maxLength} caractere${maxLength > 1 ? 's' : ''}.`;
+      }
+
+      // Validação de padrão regex
+      if (pattern && !pattern.test(input)) {
+        return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} deve seguir o formato correto.`;
+      }
+
+      // Validação customizada (se fornecida)
+      if (validate) {
+        const customValidation = validate(input);
+        if (typeof customValidation === 'string') {
+          return customValidation;
+        }
+        if (customValidation !== true) {
+          return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} é inválido.`;
+        }
+      }
+
+      return true;
+    };
+
+    promptConfig.validate = combinedValidate;
+
+    const { input } = await inquirer.prompt([promptConfig]);
+    return input;
+  }
+
+  /**
    * Exibe uma mensagem de confirmação.
    *
    * @param {string} message - Mensagem a ser exibida.
