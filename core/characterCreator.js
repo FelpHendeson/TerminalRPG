@@ -40,7 +40,7 @@ class CharacterCreator {
                 { name: 'Impulsiva e apaixonada', value: 'passionate' },
                 { name: 'Fria e calculista', value: 'calculating' }
             ];
-            const firstTrait = InterfaceUtils.showChoices('Você se considera uma pessoa...', traitChoices);
+            const firstTrait = await InterfaceUtils.showChoices('Você se considera uma pessoa...', traitChoices);
 
             traitChoices = [
                 { name: 'Protege os outros primeiro', value: 'protect' },
@@ -48,7 +48,7 @@ class CharacterCreator {
                 { name: 'Age instintivamente', value: 'instinct' },
                 { name: 'Recua para planejar', value: 'plan' }
             ];
-            const secondTrait = InterfaceUtils.showChoices('Em uma situação de perigo, você...', traitChoices);
+            const secondTrait = await InterfaceUtils.showChoices('Em uma situação de perigo, você...', traitChoices);
 
             traitChoices = [
                 { name: 'Ajudar e proteger os outros', value: 'hero' },
@@ -56,7 +56,7 @@ class CharacterCreator {
                 { name: 'Provar sua força e coragem', value: 'strength' },
                 { name: 'Adquirir conhecimento e poder', value: 'knowledge' }
             ];
-            const thirdTrait = InterfaceUtils.showChoices('Qual é sua maior motivação?', traitChoices);
+            const thirdTrait = await InterfaceUtils.showChoices('Qual é sua maior motivação?', traitChoices);
 
             // Determinar traços baseados nas respostas
             const traits = this.determineTraits(firstTrait, secondTrait, thirdTrait);
