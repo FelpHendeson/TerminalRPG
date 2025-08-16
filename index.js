@@ -24,13 +24,10 @@ class TerminalRPG {
     }
 
     if (choice === "continue") {
-      const loaded = await this.selectAndLoadSlot();
+      const loaded = await this.manageSaves(); // <<<<< aqui
       if (!loaded) {
-        InterfaceUtils.showError(
-          "Não foi possível carregar o slot escolhido. Iniciando novo jogo."
-        );
-        await InterfaceUtils.waitForInput();
-        await this.createNewCharacterFlow(); // cai no novo jogo
+        // usuário voltou ou só excluiu; volta pro menu principal de início
+        return this.start();
       }
     } else {
       await this.createNewCharacterFlow();
@@ -58,8 +55,8 @@ class TerminalRPG {
       InterfaceUtils.clearScreen();
       InterfaceUtils.drawBox("MENU PRINCIPAL", 60);
       console.log();
-
-
+      this.drawPlayerHUD();
+      console.log();
 
       const selectedChoice = await InterfaceUtils.showChoices(
         "Faça uma escolha:",
@@ -131,8 +128,26 @@ class TerminalRPG {
     InterfaceUtils.clearScreen();
     InterfaceUtils.drawBox("[P] PERFIL DO JOGADOR", 60);
     console.log();
-    const lines = this.game.getStatusLines();
-    InterfaceUtils.drawBox(lines, 60);
+
+    const p = this.game.player;
+    if (!p) {
+      InterfaceUtils.showError("Nenhum personagem carregado.");
+      await InterfaceUtils.waitForInput();
+      return;
+    }
+
+    const profileLines = [
+      `[NOME: ${p.name}].`,
+      `[NÍVEL: ${p.level} (${p.xp}/${p.xpToLevelUp})].`,
+      `[HP: ${p.hp}/${p.maxHp}].`,
+      `[FORÇA/ATK: ${p.atk}].`,
+      `[AGILIDADE/SPD: ${p.spd}].`,
+      `[FÍSICO/DEF: ${p.def}].`,
+      `[OURO: ${p.gold}].`,
+    ];
+
+    // janela compacta no mesmo estilo do HUD
+    InterfaceUtils.drawBox(profileLines, 40);
     await InterfaceUtils.waitForInput();
   }
 
@@ -166,6 +181,115 @@ class TerminalRPG {
       false
     );
     return this.game.loadFromSlot(chosen);
+  }
+
+  async manageSaves() {
+    const InterfaceUtils = require("./utils/interfaceUtils");
+
+    while (true) {
+      const saves = this.game.listSaves(); // [{slot, exists, name, level, lastSaved}]
+      if (!saves.length) {
+        InterfaceUtils.showError("Nenhum slot disponível.");
+        await InterfaceUtils.waitForInput();
+        return false;
+      }
+
+      // opções de carregar
+      const opts = saves
+        .filter((s) => s.exists)
+        .map((s) => ({
+          name: `Carregar Slot ${s.slot} — ${s.name} (Nv ${s.level})`,
+          value: `load-${s.slot}`,
+          symbol: `[${s.slot}]`,
+        }));
+
+      // opções de excluir (apenas slots existentes)
+      saves
+        .filter((s) => s.exists)
+        .forEach((s) => {
+          opts.push({
+            name: `Excluir Slot ${s.slot} — ${s.name}`,
+            value: `delete-${s.slot}`,
+            symbol: `[-${s.slot}]`,
+          });
+        });
+
+      // caso não exista nenhum save, dá opção de voltar
+      if (!opts.length) {
+        await InterfaceUtils.showInfo(
+          "Não há saves para continuar. Crie um novo jogo."
+        );
+        await InterfaceUtils.waitForInput();
+        return false;
+      }
+
+      // opção Voltar
+      opts.push({ name: "Voltar", value: "back", symbol: "[B]" });
+
+      InterfaceUtils.clearScreen();
+      InterfaceUtils.drawBox("[GERENCIAR SAVES]", 60);
+      console.log();
+
+      const choice = await InterfaceUtils.showChoices(
+        "Escolha um slot para CARREGAR ou EXCLUIR:",
+        opts,
+        false
+      );
+
+      if (choice === "back") return false;
+
+      const [action, slotStr] = choice.split("-");
+      const slot = Number(slotStr);
+
+      if (action === "load") {
+        const ok = this.game.loadFromSlot(slot);
+        if (ok) return true;
+        InterfaceUtils.showError(`Não foi possível carregar o Slot ${slot}.`);
+        await InterfaceUtils.waitForInput();
+        // volta ao loop para tentar outra ação
+      }
+
+      if (action === "delete") {
+        const confirm = await InterfaceUtils.confirm(
+          `Tem certeza que deseja EXCLUIR o Slot ${slot}?`
+        );
+        if (confirm) {
+          this.game.saves.delete(slot);
+          InterfaceUtils.showSuccess(`Slot ${slot} excluído!`);
+          await InterfaceUtils.waitForInput();
+        }
+        // volta ao loop (lista atualiza)
+      }
+    }
+  }
+
+  async saveProgress() {
+    const ok = this.game.save();
+    if (ok) {
+      InterfaceUtils.showSuccess("Progresso salvo com sucesso!");
+    } else {
+      InterfaceUtils.showError(
+        "Não foi possível salvar. Abra um slot primeiro (Novo Jogo/Continuar)."
+      );
+    }
+    await InterfaceUtils.waitForInput();
+  }
+
+  async exitAndSave() {
+    const confirmed = await InterfaceUtils.confirm(
+      "Tem certeza que deseja sair?"
+    );
+    if (!confirmed) return;
+
+    const ok = this.game.save();
+    if (ok) {
+      InterfaceUtils.showSuccess("Progresso salvo! Até logo!");
+    } else {
+      InterfaceUtils.showError(
+        "Não foi possível salvar antes de sair (slot indefinido)."
+      );
+    }
+    this.isRunning = false;
   }
 
   async createNewCharacterFlow() {
@@ -210,6 +334,21 @@ class TerminalRPG {
     this.game.startNewGame(player, slot);
     InterfaceUtils.showSuccess(`A aventura começa no Slot ${slot}!`);
     await InterfaceUtils.waitForInput();
+  }
+
+  drawPlayerHUD() {
+    const p = this.game.player;
+    if (!p) return;
+
+    const lines = [
+      `[NOME: ${p.name}].`,
+      `[NÍVEL: ${p.level}].`,
+      `[HP: ${p.hp}/${p.maxHp}].`,
+      `[OURO: ${p.gold}].`,
+    ];
+    // largura ~40 deixa parecido com a imagem; ajuste se quiser
+    InterfaceUtils.drawBox(lines, 40);
+    console.log();
   }
 }
 
