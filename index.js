@@ -1,5 +1,7 @@
 const InterfaceUtils = require("./utils/interfaceUtils");
 const GameManager = require("./managers/gameManager");
+const CharacterCreator = require("./core/characterCreator");
+const Player = require("./entities/player");
 
 /**
  * Classe principal do jogo Terminal RPG.
@@ -22,14 +24,12 @@ class TerminalRPG {
    * @returns {Promise<void>} Promise que resolve quando o jogo termina.
    */
   async start() {
-    const UI = require('./utils/interfaceUtils');
-  
     while (true) {
-      UI.drawGameTitle();
+      InterfaceUtils.drawGameTitle();
   
       let choice = 'new';
       if (this.game.hasAnySave()) {
-        choice = await UI.showChoices(
+        choice = await InterfaceUtils.showChoices(
           'Encontramos saves. O que você quer fazer?',
           [
             { name: 'Continuar', value: 'continue', symbol: '[C]' },
@@ -42,7 +42,7 @@ class TerminalRPG {
       if (choice === 'continue') {
         const loaded = await this.manageSaves();
         if (!loaded) {  // usuário só voltou/excluiu -> repete o loop
-          UI.clearScreen();
+          InterfaceUtils.clearScreen();
           continue;
         }
       } else {
@@ -193,12 +193,11 @@ class TerminalRPG {
    * @returns {Promise<boolean>} Promise que resolve com true se um save foi carregado com sucesso.
    */
   async selectAndLoadSlot() {
-    const InterfaceUtils = require("./utils/interfaceUtils");
     const slots = this.game.listSaves().filter((s) => s.exists);
     if (!slots.length) return false;
 
-    const opts = saves.filter(s => s.exists).map(s => ({
-      name: `Carregar Slot ${s.slot} — ${s.name} (Nv ${s.level})  •  ${new Date(s.lastSaved).toLocaleString()}`,
+    const opts = slots.map(s => ({
+      name: `Carregar Slot ${s.slot} — ${s.name} (Nv ${s.level}) - ${new Date(s.lastSaved).toLocaleString()}`,
       value: `load-${s.slot}`,
       symbol: `[${s.slot}]`
     }));
@@ -218,8 +217,6 @@ class TerminalRPG {
    * @returns {Promise<boolean>} Promise que resolve com true se um save foi carregado, false se o usuário voltou.
    */
   async manageSaves() {
-    const InterfaceUtils = require("./utils/interfaceUtils");
-
     while (true) {
       const saves = this.game.listSaves(); // [{slot, exists, name, level, lastSaved}]
       if (!saves.length) {
@@ -344,10 +341,6 @@ class TerminalRPG {
    * @returns {Promise<void>} Promise que resolve quando o personagem é criado e o jogo inicia.
    */
   async createNewCharacterFlow() {
-    const InterfaceUtils = require("./utils/interfaceUtils");
-    const CharacterCreator = require("./core/characterCreator");
-    const Player = require("./entities/player");
-
     // escolher slot (livre, ou qual substituir)
     const all = this.game.listSaves();
     const free = all.filter((s) => !s.exists);
