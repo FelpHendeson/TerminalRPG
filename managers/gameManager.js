@@ -1,6 +1,6 @@
 // managers/gameManager.js
 const Player = require('../entities/player');
-const SaveManager = require('../saveManager');
+const SaveManager = require('./saveManager');
 
 const STATES = { TITLE:'TITLE', EXPLORATION:'EXPLORATION', MENU:'MENU', EXIT:'EXIT' };
 
