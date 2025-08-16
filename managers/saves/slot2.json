@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "player": {
+    "__type": "Player",
+    "id": "medkg2e4-5553",
+    "name": "Teste",
+    "level": 1,
+    "hp": 100,
+    "maxHp": 100,
+    "atk": 10,
+    "def": 10,
+    "spd": 5,
+    "gold": 50,
+    "skills": [],
+    "effectStatus": [],
+    "type": "Player",
+    "xp": 0,
+    "xpToLevelUp": 100,
+    "inventory": []
+  },
+  "flags": {},
+  "savedAt": 1755306965024
+}

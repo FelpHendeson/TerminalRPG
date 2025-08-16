@@ -59,6 +59,8 @@ class TerminalRPG {
       InterfaceUtils.drawBox("MENU PRINCIPAL", 60);
       console.log();
 
+
+
       const selectedChoice = await InterfaceUtils.showChoices(
         "Faça uma escolha:",
         choices,
@@ -204,34 +206,6 @@ class TerminalRPG {
     const creator = new CharacterCreator(this.game); // ok passar GM, mas vamos usar o retorno
     const result = await creator.start(); // { player, name, traits } (após ajuste no CharacterCreator)
     let player = result?.player;
-
-    // fallback: se seu CharacterCreator ainda não retornar "player", cria aqui:
-    if (!player) {
-      const name =
-        result?.name ||
-        (await InterfaceUtils.showInput(
-          "Qual será o nome do seu herói?",
-          "Herói",
-          {
-            minLength: 2,
-            maxLength: 20,
-            fieldName: "nome",
-          }
-        ));
-      const traits = result?.traits || [];
-      player = new Player({ name });
-      // aplicar efeitos simples dos traços
-      for (const t of traits) {
-        const ef = t?.effects || {};
-        if (ef.maxHp) {
-          player.maxHp += ef.maxHp;
-          player.hp = player.maxHp;
-        }
-        if (ef.atk) player.atk += ef.atk;
-        if (ef.def) player.def += ef.def;
-        if (ef.spd) player.spd += ef.spd;
-      }
-    }
 
     this.game.startNewGame(player, slot);
     InterfaceUtils.showSuccess(`A aventura começa no Slot ${slot}!`);
