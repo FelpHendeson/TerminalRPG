@@ -1,0 +1,72 @@
+{
+    "worlds": [
+      {
+        "id": "aetherion",
+        "name": "Mundo de Aetherion",
+        "description": "Um mundo antigo moldado por reinos, magia e aço.",
+        "continents": [
+          {
+            "id": "eldoria",
+            "name": "Eldoria",
+            "description": "Florestas densas e planícies férteis.",
+            "empires": [
+              {
+                "id": "imperium_solaria",
+                "name": "Império de Solaria",
+                "description": "O sol como estandarte, a lei como espada.",
+                "kingdoms": [
+                  {
+                    "id": "reino_aurora",
+                    "name": "Reino de Aurora",
+                    "description": "Cavaleiros da alvorada e mercados prósperos.",
+                    "domains": [
+                      {
+                        "id": "ducado_valemer",
+                        "name": "Ducado de Valemer",
+                        "description": "Campos verdes e fortalezas antigas.",
+                        "cities": [
+                          {
+                            "id": "cidade_luminara",
+                            "name": "Cidade de Luminara",
+                            "description": "Faróis de conhecimento e comércio.",
+                            "villages": [
+                              {
+                                "id": "vila_inicial",
+                                "name": "Vila Inicial",
+                                "description": "Teu ponto de partida.",
+                                "locals": [
+                                  {
+                                    "id": "loja_armas",
+                                    "type": "shop_weapons",
+                                    "name": "Loja de Armas da Vila",
+                                    "description": "Espadas honestas por preços justos."
+                                  },
+                                  {
+                                    "id": "loja_itens",
+                                    "type": "shop_items",
+                                    "name": "Loja de Itens",
+                                    "description": "Poções, cordas e quinquilharias úteis."
+                                  },
+                                  {
+                                    "id": "estalagem",
+                                    "type": "inn",
+                                    "name": "Estalagem Luz da Aurora",
+                                    "description": "Uma boa noite de descanso nunca é demais."
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  

@@ -100,6 +100,16 @@ class GameManager {
     this.currentSlot = slot;
     this.gameState = STATES.EXPLORATION;
     this.save(); // salva imediatamente no slot
+
+    this.flags.location = this.flags.location || {
+      worldId: 'aetherion',
+      continentId: 'eldoria',
+      empireId: 'imperium_solaria',
+      kingdomId: 'reino_aurora',
+      domainId: 'ducado_valemer',
+      cityId: 'cidade_luminara',
+      villageId: 'vila_inicial'
+    };
   }
 
   /**
