@@ -18,6 +18,15 @@
     "xpToLevelUp": 100,
     "inventory": []
   },
-  "flags": {},
-  "savedAt": 1755312011307
+  "flags": {
+    "location": {
+      "worldId": "aetherion",
+      "continentId": "eldoria",
+      "empireId": "imperium_solaria",
+      "kingdomId": "reino_aurora",
+      "domainId": "ducado_valemer",
+      "cityId": "cidade_luminara"
+    }
+  },
+  "savedAt": 1755316209112
 }
