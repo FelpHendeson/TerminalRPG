@@ -22,31 +22,35 @@ class TerminalRPG {
    * @returns {Promise<void>} Promise que resolve quando o jogo termina.
    */
   async start() {
-    const InterfaceUtils = require("./utils/interfaceUtils");
-    InterfaceUtils.drawGameTitle();
-
-    let choice = "new";
-    if (this.game.hasAnySave()) {
-      choice = await InterfaceUtils.showChoices(
-        "Encontramos saves. O que você quer fazer?",
-        [
-          { name: "Continuar", value: "continue", symbol: "[C]" },
-          { name: "Novo jogo", value: "new", symbol: "[N]" },
-        ],
-        false
-      );
-    }
-
-    if (choice === "continue") {
-      const loaded = await this.manageSaves(); // <<<<< aqui
-      if (!loaded) {
-        // usuário voltou ou só excluiu; volta pro menu principal de início
-        return this.start();
+    const UI = require('./utils/interfaceUtils');
+  
+    while (true) {
+      UI.drawGameTitle();
+  
+      let choice = 'new';
+      if (this.game.hasAnySave()) {
+        choice = await UI.showChoices(
+          'Encontramos saves. O que você quer fazer?',
+          [
+            { name: 'Continuar', value: 'continue', symbol: '[C]' },
+            { name: 'Novo jogo', value: 'new', symbol: '[N]' },
+          ],
+          false
+        );
       }
-    } else {
-      await this.createNewCharacterFlow();
+  
+      if (choice === 'continue') {
+        const loaded = await this.manageSaves();
+        if (!loaded) {  // usuário só voltou/excluiu -> repete o loop
+          UI.clearScreen();
+          continue;
+        }
+      } else {
+        await this.createNewCharacterFlow();
+      }
+      break; // saiu do loop e segue para o menu principal
     }
-
+  
     await this.showMainMenu();
   }
 
@@ -193,10 +197,10 @@ class TerminalRPG {
     const slots = this.game.listSaves().filter((s) => s.exists);
     if (!slots.length) return false;
 
-    const opts = slots.map((s) => ({
-      name: `Slot ${s.slot} — ${s.name} (Nv ${s.level})`,
-      value: s.slot,
-      symbol: `[${s.slot}]`,
+    const opts = saves.filter(s => s.exists).map(s => ({
+      name: `Carregar Slot ${s.slot} — ${s.name} (Nv ${s.level})  •  ${new Date(s.lastSaved).toLocaleString()}`,
+      value: `load-${s.slot}`,
+      symbol: `[${s.slot}]`
     }));
 
     const chosen = await InterfaceUtils.showChoices(

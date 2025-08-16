@@ -120,7 +120,8 @@ class SaveManager {
    */
   delete(slot) {
     const p = this.slotPath(slot);
-    if (fs.existsSync(p)) fs.unlinkSync(p);
+    if (fs.existsSync(p)) { fs.unlinkSync(p); return true; }
+    return false;
   }
 }
 

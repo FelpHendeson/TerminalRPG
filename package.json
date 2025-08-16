@@ -5,10 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "editor": "node dataEditor.js",
-    "debug": "node debug.js",
-    "debug:save": "node debug.js --save"
+    "start": "node index.js"
   },
   "keywords": [
     "rpg",
