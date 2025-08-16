@@ -1,12 +1,26 @@
 const InterfaceUtils = require("./utils/interfaceUtils");
 const GameManager = require("./managers/gameManager");
 
+/**
+ * Classe principal do jogo Terminal RPG.
+ * Gerencia o fluxo principal do jogo, incluindo menus, navegação e interação com o usuário.
+ */
 class TerminalRPG {
+  /**
+   * Construtor da classe TerminalRPG.
+   * Inicializa o gerenciador do jogo e define o estado de execução.
+   */
   constructor() {
     this.game = new GameManager();
     this.isRunning = true;
   }
 
+  /**
+   * Inicia o jogo, exibindo o título e gerenciando o fluxo inicial.
+   * Verifica se existem saves e permite ao usuário escolher entre continuar ou novo jogo.
+   * 
+   * @returns {Promise<void>} Promise que resolve quando o jogo termina.
+   */
   async start() {
     const InterfaceUtils = require("./utils/interfaceUtils");
     InterfaceUtils.drawGameTitle();
@@ -38,6 +52,7 @@ class TerminalRPG {
 
   /**
    * Exibe o menu principal do jogo com todas as opções disponíveis.
+   * Loop principal que mantém o jogo rodando até que o usuário escolha sair.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário sai do jogo.
    */
@@ -93,6 +108,7 @@ class TerminalRPG {
 
   /**
    * Exibe a tela do mapa do mundo.
+   * Funcionalidade placeholder que será implementada futuramente.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
    */
@@ -108,6 +124,7 @@ class TerminalRPG {
 
   /**
    * Exibe o menu de missões.
+   * Funcionalidade placeholder que será implementada futuramente.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
    */
@@ -120,7 +137,8 @@ class TerminalRPG {
   }
 
   /**
-   * Exibe o perfil do jogador.
+   * Exibe o perfil detalhado do jogador.
+   * Mostra todas as estatísticas do personagem em uma interface compacta.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
    */
@@ -153,6 +171,7 @@ class TerminalRPG {
 
   /**
    * Exibe as configurações do jogo.
+   * Funcionalidade placeholder que será implementada futuramente.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
    */
@@ -164,6 +183,11 @@ class TerminalRPG {
     await InterfaceUtils.waitForInput();
   }
 
+  /**
+   * Permite ao usuário selecionar e carregar um slot de save específico.
+   * 
+   * @returns {Promise<boolean>} Promise que resolve com true se um save foi carregado com sucesso.
+   */
   async selectAndLoadSlot() {
     const InterfaceUtils = require("./utils/interfaceUtils");
     const slots = this.game.listSaves().filter((s) => s.exists);
@@ -183,6 +207,12 @@ class TerminalRPG {
     return this.game.loadFromSlot(chosen);
   }
 
+  /**
+   * Gerencia a interface de saves, permitindo carregar ou excluir saves.
+   * Loop que permite ao usuário navegar entre diferentes ações de save.
+   * 
+   * @returns {Promise<boolean>} Promise que resolve com true se um save foi carregado, false se o usuário voltou.
+   */
   async manageSaves() {
     const InterfaceUtils = require("./utils/interfaceUtils");
 
@@ -263,6 +293,12 @@ class TerminalRPG {
     }
   }
 
+  /**
+   * Salva o progresso atual do jogo.
+   * Exibe mensagem de sucesso ou erro dependendo do resultado da operação.
+   * 
+   * @returns {Promise<void>} Promise que resolve quando o usuário confirma a mensagem.
+   */
   async saveProgress() {
     const ok = this.game.save();
     if (ok) {
@@ -275,6 +311,11 @@ class TerminalRPG {
     await InterfaceUtils.waitForInput();
   }
 
+  /**
+   * Confirma a saída do jogo e salva o progresso antes de encerrar.
+   * 
+   * @returns {Promise<void>} Promise que resolve quando o jogo é encerrado.
+   */
   async exitAndSave() {
     const confirmed = await InterfaceUtils.confirm(
       "Tem certeza que deseja sair?"
@@ -292,6 +333,12 @@ class TerminalRPG {
     this.isRunning = false;
   }
 
+  /**
+   * Fluxo completo de criação de um novo personagem.
+   * Permite ao usuário escolher um slot e criar um personagem através do CharacterCreator.
+   * 
+   * @returns {Promise<void>} Promise que resolve quando o personagem é criado e o jogo inicia.
+   */
   async createNewCharacterFlow() {
     const InterfaceUtils = require("./utils/interfaceUtils");
     const CharacterCreator = require("./core/characterCreator");
@@ -336,6 +383,10 @@ class TerminalRPG {
     await InterfaceUtils.waitForInput();
   }
 
+  /**
+   * Desenha o HUD (Heads-Up Display) do jogador no menu principal.
+   * Exibe informações básicas do personagem em uma caixa compacta.
+   */
   drawPlayerHUD() {
     const p = this.game.player;
     if (!p) return;

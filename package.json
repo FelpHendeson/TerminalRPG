@@ -1,7 +1,7 @@
 {
   "name": "terminalrpg",
   "version": "1.0.0",
-  "description": "To make it easy for you to get started with GitLab, here's a list of recommended next steps.",
+  "description": "Um RPG de terminal interativo desenvolvido em Node.js com sistema de criação de personagens, saves múltiplos e interface baseada em texto.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,11 +10,30 @@
     "debug": "node debug.js",
     "debug:save": "node debug.js --save"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "rpg",
+    "terminal",
+    "game",
+    "nodejs",
+    "text-based",
+    "adventure",
+    "character-creation"
+  ],
+  "author": "FLPBlackSystems",
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.1.2",
     "inquirer": "^8.2.6"
-  }
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FLPBlackSystems/terminalRPG.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FLPBlackSystems/terminalRPG/issues"
+  },
+  "homepage": "https://github.com/FLPBlackSystems/terminalRPG#readme"
 }

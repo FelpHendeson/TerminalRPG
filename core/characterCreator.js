@@ -2,11 +2,29 @@ const chalk = require("chalk");
 const InterfaceUtils = require("../utils/interfaceUtils");
 const Player = require("../entities/player");
 
+/**
+ * Classe responsável por gerenciar o processo de criação de personagens.
+ * Guia o usuário através de perguntas para determinar a personalidade e criar um personagem único.
+ */
 class CharacterCreator {
+  /**
+   * Construtor da classe CharacterCreator.
+   * 
+   * @param {Object} gameManager - Instância do GameManager para integração com o jogo.
+   */
   constructor(gameManager) {
     this.gameManager = gameManager;
   }
 
+  /**
+   * Inicia o processo de criação de personagem.
+   * Guia o usuário através de perguntas sobre personalidade e cria um personagem baseado nas respostas.
+   * 
+   * @returns {Promise<Object|null>} Promise que resolve com os dados do personagem criado ou null se houver erro.
+   * @returns {Player} returns.player - Instância do jogador criado.
+   * @returns {string} returns.name - Nome do personagem.
+   * @returns {Array} returns.traits - Array de traços de personalidade.
+   */
   async start() {
     InterfaceUtils.drawBox("CRIAÇÂO DE PERSONAGEM", 60);
 
@@ -97,6 +115,17 @@ class CharacterCreator {
     }
   }
 
+  /**
+   * Determina os traços de personalidade baseados nas respostas do usuário.
+   * 
+   * @param {string} personality - Traço de personalidade escolhido (kind, neutral, passionate, calculating).
+   * @param {string} dangerReaction - Reação ao perigo escolhida (protect, analyze, instinct, plan).
+   * @param {string} motivation - Motivação principal escolhida (hero, truth, strength, knowledge).
+   * @returns {Array<Object>} Array de objetos contendo os traços determinados.
+   * @returns {string} returns[].name - Nome do traço.
+   * @returns {string} returns[].description - Descrição do traço.
+   * @returns {Object} returns[].effects - Efeitos do traço nas estatísticas.
+   */
   determineTraits(personality, dangerReaction, motivation) {
     const traits = [];
 
@@ -179,6 +208,14 @@ class CharacterCreator {
     return traits;
   }
 
+  /**
+   * Cria uma instância de Player baseada no nome e traços fornecidos.
+   * Aplica os efeitos dos traços nas estatísticas base do personagem.
+   * 
+   * @param {string} name - Nome do personagem.
+   * @param {Array<Object>} traits - Array de traços de personalidade.
+   * @returns {Player} Instância do jogador criado com estatísticas baseadas nos traços.
+   */
   createPlayer(name, traits) {
     // Calcular stats baseados nos traços
     let baseStats = {
