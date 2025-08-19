@@ -1,0 +1,15 @@
+{
+  "monsters": [
+    {
+      "id": "lobo",
+      "name": "Lobo",
+      "hp": 30,
+      "atk": 5,
+      "def": 2,
+      "xp": 5,
+      "gold": 2,
+      "locations": ["vila_inicial", "fazenda_vila"],
+      "spawn": { "start": 20, "end": 6 }
+    }
+  ]
+}

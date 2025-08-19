@@ -1,0 +1,16 @@
+{
+  "events": [
+    {
+      "id": "start",
+      "text": "Você desperta sem memória em um mundo estranho. Uma voz ecoa: 'Qual é o seu nome?'",
+      "choices": [
+        { "text": "Dizer seu nome", "next": "intro" }
+      ]
+    },
+    {
+      "id": "intro",
+      "text": "Bem-vindo, {name}. Seu novo destino aguarda.",
+      "next": null
+    }
+  ]
+}

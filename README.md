@@ -1,6 +1,108 @@
 # terminalRPG
 
+TerminalRPG é um jogo de RPG baseado em texto executado no terminal.
 
+## Adicionando conteúdo
+
+### Localidades
+As localidades do mundo estão definidas em `data/worldMap.json`. Cada entrada possui
+`id`, `name`, `description` e pode conter sublocalizações como continentes, reinos e vilas.
+
+### Missões
+As missões são armazenadas em `data/quests.json` e possuem o formato:
+```
+{
+  "id": "main_001",
+  "name": "A Chegada",
+  "type": "primary", // ou "secondary",
+  "visibility": "normal", // ou "secret",
+  "hint": "Fale com o ancião da vila.",
+  "description": "Fale com o ancião...",
+  "location": "vila_inicial",
+  "time": { "start": 8, "end": 20 },
+  "objectives": [{ "type": "talk", "target": "chefe_vila", "required": 1, "description": "Conversar com o ancião" }],
+  "rewards": { "xp": 50, "gold": 10, "fame": 5 },
+  "conditions": { "minLevel": 1, "relations": { "chefe_vila": 5 } }
+}
+```
+
+Use `type` para diferenciar missões principais e secundárias. `visibility` define
+se a missão é normal (listada com dicas) ou secreta (exige desbloqueio por
+eventos). O campo `location` recebe o `id` da localidade onde a missão fica
+disponível. A propriedade opcional `time` determina o horário (hora inicial
+`start` e final `end`) em que ela pode ser aceita. Cada item em `objectives`
+define o tipo (`talk`, `kill` etc.), o `target` e a quantidade `required`.
+Em `rewards` é possível conceder ouro, fama, XP ou itens. Em `conditions`
+podem ser exigidos nível mínimo, fama (`fame`) ou relacionamento com NPCs
+específicos (`relations`).
+
+Missões aceitas ficam marcadas em `flags.quests` e têm progresso em
+`flags.questProgress`. Ao completar os objetivos, o jogo exibe "Missão
+concluída" e aplica automaticamente as recompensas antes de marcar o status
+como `completed`.
+
+### Monstros e Combate
+Monstros são definidos em `data/monsters.json`:
+
+```
+{
+  "id": "lobo",
+  "name": "Lobo",
+  "hp": 30,
+  "atk": 5,
+  "def": 2,
+  "xp": 5,
+  "gold": 2,
+  "locations": ["vila_inicial"],
+  "spawn": { "start": 20, "end": 6 }
+}
+```
+
+Use a opção **Explorar** no menu principal para enfrentar monstros disponíveis
+na localidade e horário atuais. Derrotá-los concede XP e ouro e pode contar
+para missões de caça.
+### Histórias
+Eventos de história são definidos em `data/story.json` e apresentados
+sequencialmente quando o jogo inicia. Cada evento possui `id`, `text` e pode
+ter `choices` levando a outros eventos:
+
+```
+{
+  "id": "start",
+  "text": "Você desperta sem memória...",
+  "choices": [{ "text": "Seguir", "next": "intro" }]
+}
+```
+
+O progresso atual fica salvo em `flags.storyId`.
+
+### Habilidades
+Habilidades utilizam o arquivo `data/skills.json` com dados como `id`, `name`,
+`type` (`active` ou `passive`), elemento e descrição. O jogador pode aprender
+habilidades e equipar até **4 ativas** e **2 passivas**. O gerenciamento é
+realizado pelo `SkillManager`.
+
+### NPCs
+NPCs são definidos em `data/npcs.json` com campos como `id`, `name`,
+`dialogue`, `dialogueFamous` e `schedules` indicando em quais horas estão
+presentes em determinadas localidades.
+
+```
+{
+  "id": "chefe_vila",
+  "name": "Chefe da Vila",
+  "dialogue": ["Saudações, viajante."],
+  "dialogueFamous": ["Ah, o herói de quem todos falam!"],
+  "schedules": [ { "location": "vila_inicial", "start": 8, "end": 20 } ]
+}
+```
+
+### Tempo e Fama
+O jogo mantém um relógio interno (`flags.time.hour`). Cada hora de jogo
+equivale a 60 segundos do mundo real. Dormir na estalagem avança 8 horas e
+restaura 50% de HP e MP. Interagir ou passar tempo com NPCs também pode
+avançar o relógio. O jogador possui um atributo de fama (`fame`) que pode ser
+recompensado em missões e altera diálogos com NPCs.
 
 ## Getting started
 

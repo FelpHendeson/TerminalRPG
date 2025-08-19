@@ -21,13 +21,17 @@ class NPC extends Entity {
    * @param {Array} [options.skills=[]] - Lista de habilidades.
    * @param {number} [options.relationship=0] - Relacionamento com o jogador (-100 a 100).
    * @param {string} [options.role='villager'] - Papel do NPC (merchant, quest_giver, guard, etc.).
-   * @param {Array} [options.dialogue=[]] - Lista de diálogos disponíveis.
-   */
+  * @param {Array} [options.dialogue=[]] - Lista de diálogos disponíveis.
+  * @param {Array} [options.dialogueFamous=[]] - Diálogos quando jogador tem alta fama.
+  * @param {Array} [options.dialogueTree=[]] - Árvores de diálogo com opções.
+  * @param {Array} [options.schedules=[]] - Horários e locais onde o NPC pode ser encontrado.
+  */
   constructor({
     id = null,
     name = 'Pessoa',
     level = 1,
     maxHp = 50,
+    maxMp = 30,
     atk = 5,
     def = 2,
     spd = 3,
@@ -35,12 +39,18 @@ class NPC extends Entity {
     skills = [],
     relationship = 0, // -100..100
     role = 'villager', // merchant, quest_giver, guard...
-    dialogue = []
+    dialogue = [],
+    dialogueFamous = [],
+    dialogueTree = [],
+    schedules = []
   } = {}) {
-    super({ id, name, level, maxHp, atk, def, spd, gold, skills });
+    super({ id, name, level, maxHp, maxMp, atk, def, spd, gold, skills });
     this.relationship = relationship;
     this.role = role;
     this.dialogue = dialogue;
+    this.dialogueFamous = dialogueFamous;
+    this.dialogueTree = dialogueTree;
+    this.schedules = schedules;
   }
 
   /**
@@ -63,6 +73,9 @@ class NPC extends Entity {
       relationship: this.relationship,
       role: this.role,
       dialogue: this.dialogue,
+      dialogueFamous: this.dialogueFamous,
+      dialogueTree: this.dialogueTree,
+      schedules: this.schedules,
       type: 'NPC'
     };
   }
@@ -91,6 +104,7 @@ class NPC extends Entity {
       name: json.name,
       level: json.level,
       maxHp: json.maxHp,
+      maxMp: json.maxMp,
       atk: json.atk,
       def: json.def,
       spd: json.spd,
@@ -98,7 +112,10 @@ class NPC extends Entity {
       skills: json.skills,
       relationship: json.relationship,
       role: json.role,
-      dialogue: json.dialogue
+      dialogue: json.dialogue,
+      dialogueFamous: json.dialogueFamous,
+      dialogueTree: json.dialogueTree,
+      schedules: json.schedules
     });
   }
 }

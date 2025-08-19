@@ -1,0 +1,20 @@
+{
+  "skills": [
+    {
+      "id": "basic_slash",
+      "name": "Corte Básico",
+      "type": "active",
+      "element": "physical",
+      "category": "physical",
+      "description": "Um ataque simples com a arma equipada."
+    },
+    {
+      "id": "focus_mind",
+      "name": "Mente Focada",
+      "type": "passive",
+      "element": "none",
+      "category": "buff",
+      "description": "Aumenta ligeiramente a precisão dos ataques."
+    }
+  ]
+}

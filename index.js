@@ -2,6 +2,13 @@ const InterfaceUtils = require("./utils/interfaceUtils");
 const GameManager = require("./managers/gameManager");
 const CharacterCreator = require("./core/characterCreator");
 const MapManager = require("./managers/mapManager");
+const QuestManager = require("./managers/questManager");
+const NPCManager = require("./managers/npcManager");
+const TimeManager = require("./managers/timeManager");
+const StoryManager = require("./managers/storyManager");
+const SkillManager = require("./managers/skillManager");
+const MonsterManager = require("./managers/monsterManager");
+const CombatManager = require("./managers/combatManager");
 const Player = require("./entities/player");
 
 /**
@@ -16,6 +23,13 @@ class TerminalRPG {
   constructor() {
     this.game = new GameManager();
     this.map = new MapManager(); // carrega e indexa worldMap.json
+    this.quest = new QuestManager(); // gerencia sistema de missões
+    this.npc = new NPCManager(); // gerencia NPCs
+    this.time = new TimeManager(); // ciclo de tempo
+    this.story = new StoryManager(); // eventos da história
+    this.skills = new SkillManager(); // habilidades
+    this.monster = new MonsterManager(); // monstros
+    this.combat = new CombatManager(); // combates
     this.isRunning = true;
   }
 
@@ -54,6 +68,8 @@ class TerminalRPG {
       break; // saiu do loop e segue para o menu principal
     }
 
+    this.time.start(this.game);
+    await this.story.play(this.game);
     await this.showMainMenu();
   }
 
@@ -67,6 +83,8 @@ class TerminalRPG {
     while (this.isRunning) {
       const choices = [
         { name: "Mapa", value: "map", symbol: "[M]" },
+        { name: "Explorar", value: "explore", symbol: "[E]" },
+        { name: "NPCs no local", value: "npcs", symbol: "[N]" },
         { name: "Menu de Missões", value: "quests", symbol: "[Q]" },
         { name: "Perfil do Jogador", value: "profile", symbol: "[P]" },
         { name: "Configurações", value: "configs", symbol: "[C]" },
@@ -89,6 +107,12 @@ class TerminalRPG {
       switch (selectedChoice) {
         case "map":
           await this.showMap();
+          break;
+        case "explore":
+          await this.explore();
+          break;
+        case "npcs":
+          await this.showNPCs();
           break;
         case "quests":
           await this.showQuests();
@@ -196,21 +220,290 @@ class TerminalRPG {
 
       // Se o novo destino for 'local' (ex.: loja_armas), aqui você abre o sistema correspondente
       // ex.: if (dest.type === 'local' && dest.id === 'loja_armas') openWeaponShop();
+      if (dest.type === 'inn') {
+        await this.openInn();
+      }
     }
   }
 
   /**
-   * Exibe o menu de missões.
-   * Funcionalidade placeholder que será implementada futuramente.
+   * Exibe o menu de missões e permite aceitar ou visualizar missões.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
    */
   async showQuests() {
+    while (true) {
+      InterfaceUtils.clearScreen();
+      InterfaceUtils.drawBox("[Q] MENU DE MISSÕES", 60);
+      console.log();
+
+      const choice = await InterfaceUtils.showChoices(
+        "Selecione:",
+        [
+          { name: "Quests disponíveis", value: "available", symbol: "[D]" },
+          { name: "Missões ativas", value: "active", symbol: "[A]" },
+          { name: "Voltar", value: "back", symbol: "[B]" },
+        ],
+        false
+      );
+
+      if (choice === "back") return;
+
+      if (choice === "available") {
+        const quests = this.quest.getAvailableQuests(this.game);
+        if (!quests.length) {
+          InterfaceUtils.showInfo("Nenhuma missão disponível aqui.");
+          await InterfaceUtils.waitForInput();
+          continue;
+        }
+
+        const opts = quests.map((q) => ({
+          name: `${q.name} (${q.type})`,
+          value: q.id,
+          symbol: ">",
+        }));
+        const picked = await InterfaceUtils.showChoices(
+          "Missões disponíveis:",
+          opts,
+          true
+        );
+        if (picked === "back") continue;
+
+        const q = this.quest.getQuestById(picked);
+        InterfaceUtils.clearScreen();
+        const detailLines = [
+          `[${q.name}]`,
+          `[${q.type.toUpperCase()}]`,
+          q.description,
+        ];
+        if (q.hint) detailLines.push(`Dica: ${q.hint}`);
+        if (q.time) detailLines.push(`Disponível das ${q.time.start}h às ${q.time.end}h`);
+        if (q.conditions) {
+          const cond = [];
+          if (q.conditions.minLevel) cond.push(`Nível ${q.conditions.minLevel}`);
+          if (q.conditions.fame) cond.push(`Fama ${q.conditions.fame}`);
+          if (q.conditions.relations) {
+            for (const [n, v] of Object.entries(q.conditions.relations)) cond.push(`${n}: ${v}`);
+          }
+          if (cond.length) detailLines.push(`Condições: ${cond.join(', ')}`);
+        }
+        if (q.objectives?.length) {
+          detailLines.push('Objetivos:');
+          q.objectives.forEach((o) => detailLines.push(`- ${o.description || o}`));
+        }
+        if (q.rewards) {
+          const rewards = Object.entries(q.rewards)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+            .join(', ');
+          detailLines.push(`Recompensas: ${rewards}`);
+        }
+        InterfaceUtils.drawBox(detailLines, 60);
+        console.log();
+
+        const accept = await InterfaceUtils.confirm("Aceitar esta missão?");
+        if (accept) {
+          this.quest.acceptQuest(this.game, q.id);
+          this.game.save();
+          InterfaceUtils.showSuccess("Missão aceita!");
+        } else {
+          InterfaceUtils.showInfo("Missão rejeitada.");
+        }
+        await InterfaceUtils.waitForInput();
+      }
+
+      if (choice === "active") {
+        const active = this.quest.getActiveQuests(this.game);
+        if (!active.length) {
+          InterfaceUtils.showInfo("Nenhuma missão ativa.");
+          await InterfaceUtils.waitForInput();
+          continue;
+        }
+        const opts = active.map((q) => ({
+          name: `[${q.type.toUpperCase()}] ${q.name}`,
+          value: q.id,
+          symbol: ">",
+        }));
+        const picked = await InterfaceUtils.showChoices("Missões ativas:", opts, true);
+        if (picked === "back") continue;
+        const q = this.quest.getQuestById(picked);
+        InterfaceUtils.clearScreen();
+        const progress = `${this.quest.getProgress(this.game, q.id)}/${q.objectives?.[0]?.required || 0}`;
+        const lines = [
+          `[${q.name}]`,
+          q.description,
+          `Progresso: ${progress}`,
+        ];
+        if (q.hint) lines.push(`Dica: ${q.hint}`);
+        if (q.conditions) {
+          const cond = [];
+          if (q.conditions.minLevel) cond.push(`Nível ${q.conditions.minLevel}`);
+          if (q.conditions.fame) cond.push(`Fama ${q.conditions.fame}`);
+          if (q.conditions.relations) {
+            for (const [n, v] of Object.entries(q.conditions.relations)) cond.push(`${n}: ${v}`);
+          }
+          if (cond.length) lines.push(`Condições: ${cond.join(', ')}`);
+        }
+        InterfaceUtils.drawBox(lines, 60);
+        console.log();
+        await InterfaceUtils.waitForInput();
+      }
+    }
+  }
+
+  /**
+   * Lista NPCs presentes na localização atual e permite interagir.
+   */
+  async showNPCs() {
     InterfaceUtils.clearScreen();
-    InterfaceUtils.drawBox("[Q] MENU DE MISSÕES", 60);
+    InterfaceUtils.drawBox("[N] NPCS", 60);
     console.log();
-    InterfaceUtils.showInfo("Sistema de missões será implementado em breve!");
-    await InterfaceUtils.waitForInput();
+
+    const here = this.map.getCurrentLocation(this.game);
+    const hour = this.time.getHour(this.game);
+    const npcs = here ? this.npc.getNPCsAt(here.id, hour) : [];
+    if (!npcs.length) {
+      InterfaceUtils.showInfo("Ninguém por perto.");
+      await InterfaceUtils.waitForInput();
+      return;
+    }
+    const opts = npcs.map((n) => ({ name: n.name, value: n.id, symbol: ">" }));
+    const pick = await InterfaceUtils.showChoices("Com quem deseja falar?", opts, true);
+    if (pick === "back") return;
+    const npc = this.npc.getNPCById(pick);
+    if (!npc) return;
+
+    await this.interactWithNPC(npc);
+  }
+
+  async interactWithNPC(npc) {
+    while (true) {
+      InterfaceUtils.clearScreen();
+      const fameDialogue =
+        this.game.player.fame >= 50 && npc.dialogueFamous.length
+          ? npc.dialogueFamous[0]
+          : npc.dialogue[0] || "...";
+      InterfaceUtils.drawBox([
+        `[${npc.name}]`,
+        fameDialogue,
+        `Relacionamento: ${this.getRelationship(npc.id)}`,
+      ], 60);
+      console.log();
+
+      const choice = await InterfaceUtils.showChoices(
+        "O que deseja fazer?",
+        [
+          { name: "Conversar", value: "talk", symbol: "[C]" },
+          { name: "Passar tempo", value: "spend", symbol: "[T]" },
+          { name: "Voltar", value: "back", symbol: "[B]" },
+        ],
+        false
+      );
+
+      if (choice === "back") return;
+      if (choice === "talk") {
+        if (npc.dialogueTree?.length) {
+          const completed = await this.runDialogue(npc);
+          completed.forEach(({ quest, rewards }) => {
+            InterfaceUtils.showSuccess("Missão concluída!");
+            if (rewards) {
+              const r = Object.entries(rewards)
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+                .join(', ');
+              InterfaceUtils.showInfo(`Recompensas: ${r}`);
+            }
+          });
+        } else {
+          this.changeRelationship(npc.id, 1);
+          InterfaceUtils.showInfo("Vocês conversam um pouco.");
+          await InterfaceUtils.waitForInput();
+        }
+      }
+      if (choice === "spend") {
+        this.changeRelationship(npc.id, 2);
+        this.time.advanceHour(this.game, 1);
+        InterfaceUtils.showInfo("O tempo passa enquanto vocês interagem.");
+        await InterfaceUtils.waitForInput();
+      }
+    }
+  }
+
+  /** Executa árvore de diálogo com opções. */
+  async runDialogue(npc) {
+    let node = npc.dialogueTree.find(n => n.id === 'start');
+    while (node) {
+      InterfaceUtils.clearScreen();
+      InterfaceUtils.drawBox([`[${npc.name}]`, node.text], 60);
+      console.log();
+      if (!node.options || !node.options.length) break;
+      const opts = node.options.map((o, i) => ({ name: o.text, value: i, symbol: '>' }));
+      const pick = await InterfaceUtils.showChoices('Escolha uma resposta:', opts, false);
+      const opt = node.options[pick];
+      if (opt.rel) this.changeRelationship(npc.id, opt.rel);
+      if (!opt.next) {
+        await InterfaceUtils.waitForInput();
+        return this.quest.recordTalk(this.game, npc.id);
+      }
+      node = npc.dialogueTree.find(n => n.id === opt.next);
+    }
+    return [];
+  }
+
+  changeRelationship(npcId, delta) {
+    this.game.flags.npcRelations = this.game.flags.npcRelations || {};
+    const cur = this.game.flags.npcRelations[npcId] || 0;
+    this.game.flags.npcRelations[npcId] = cur + delta;
+  }
+
+  getRelationship(npcId) {
+    return this.game.flags.npcRelations?.[npcId] || 0;
+  }
+
+  /**
+   * Abre o menu da estalagem, permitindo dormir para recuperar HP/MP e avançar o tempo.
+   */
+  async openInn() {
+    InterfaceUtils.clearScreen();
+    InterfaceUtils.drawBox("ESTALAGEM", 40);
+    console.log();
+    const confirm = await InterfaceUtils.confirm("Deseja dormir? (8 horas)");
+    if (confirm) {
+      const p = this.game.player;
+      p.heal(Math.floor(p.maxHp * 0.5));
+      p.restoreMana(Math.floor(p.maxMp * 0.5));
+      this.time.advanceHour(this.game, 8);
+      InterfaceUtils.showSuccess("Você descansou e se sente revigorado.");
+      await InterfaceUtils.waitForInput();
+    }
+  }
+
+  /** Explora a região procurando monstros. */
+  async explore() {
+    const here = this.map.getCurrentLocation(this.game);
+    const hour = this.time.getHour(this.game);
+    const monsters = here ? this.monster.getMonstersAt(here.id, hour) : [];
+    if (!monsters.length) {
+      InterfaceUtils.showInfo('Nenhum monstro aparece.');
+      await InterfaceUtils.waitForInput();
+      return;
+    }
+    const opts = monsters.map(m => ({ name: m.name, value: m.id, symbol: '>' }));
+    const pick = await InterfaceUtils.showChoices('Monstros encontrados:', opts, true);
+    if (pick === 'back') return;
+    const monster = monsters.find(m => m.id === pick);
+    const win = await this.combat.fight(this.game.player, monster);
+    if (win) {
+      const completed = this.quest.recordKill(this.game, monster.id);
+      completed.forEach(({ quest, rewards }) => {
+        InterfaceUtils.showSuccess('Missão concluída!');
+        if (rewards) {
+          const r = Object.entries(rewards)
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+            .join(', ');
+          InterfaceUtils.showInfo(`Recompensas: ${r}`);
+        }
+      });
+      this.game.save();
+    }
   }
 
   /**
@@ -234,11 +527,11 @@ class TerminalRPG {
     const profileLines = [
       `[NOME: ${p.name}].`,
       `[NÍVEL: ${p.level} (${p.xp}/${p.xpToLevelUp})].`,
-      `[HP: ${p.hp}/${p.maxHp}].`,
+      `[HP: ${p.hp}/${p.maxHp}] [MP: ${p.mp}/${p.maxMp}].`,
       `[FORÇA/ATK: ${p.atk}].`,
       `[AGILIDADE/SPD: ${p.spd}].`,
       `[FÍSICO/DEF: ${p.def}].`,
-      `[OURO: ${p.gold}].`,
+      `[OURO: ${p.gold}] [FAMA: ${p.fame}].`,
     ];
 
     // janela compacta no mesmo estilo do HUD
@@ -406,6 +699,7 @@ class TerminalRPG {
         "Não foi possível salvar antes de sair (slot indefinido)."
       );
     }
+    this.time.stop();
     this.isRunning = false;
   }
 
@@ -463,13 +757,16 @@ class TerminalRPG {
     const p = this.game.player;
     if (!p) return;
 
+    const here = this.map.getCurrentLocation(this.game);
     const lines = [
       `[NOME: ${p.name}].`,
       `[NÍVEL: ${p.level}].`,
-      `[HP: ${p.hp}/${p.maxHp}].`,
-      `[OURO: ${p.gold}].`,
-    ];
-    // largura ~40 deixa parecido com a imagem; ajuste se quiser
+      `[HP: ${p.hp}/${p.maxHp}] [MP: ${p.mp}/${p.maxMp}].`,
+      `[OURO: ${p.gold}] [FAMA: ${p.fame}].`,
+      here ? `[LOCAL: ${here.name}]` : '',
+      `[HORA: ${this.time.getFormattedTime(this.game)}]`,
+    ].filter(Boolean);
+
     InterfaceUtils.drawBox(lines, 40);
     console.log();
   }
