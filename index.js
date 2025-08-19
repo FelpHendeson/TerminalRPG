@@ -22,14 +22,14 @@ class TerminalRPG {
    */
   constructor() {
     this.game = new GameManager();
-    this.map = new MapManager(); // carrega e indexa worldMap.json
-    this.quest = new QuestManager(); // gerencia sistema de missões
-    this.npc = new NPCManager(); // gerencia NPCs
-    this.time = new TimeManager(); // ciclo de tempo
-    this.story = new StoryManager(); // eventos da história
-    this.skills = new SkillManager(); // habilidades
+    this.map = new MapManager();       // carrega e indexa worldMap.json
+    this.quest = new QuestManager();   // gerencia sistema de missões
+    this.npc = new NPCManager();       // gerencia NPCs
+    this.time = new TimeManager();     // ciclo de tempo
+    this.story = new StoryManager();   // eventos da história
+    this.skills = new SkillManager();  // habilidades
     this.monster = new MonsterManager(); // monstros
-    this.combat = new CombatManager(); // combates
+    this.combat = new CombatManager();   // combates
     this.isRunning = true;
   }
 
@@ -37,7 +37,7 @@ class TerminalRPG {
    * Inicia o jogo, exibindo o título e gerenciando o fluxo inicial.
    * Verifica se existem saves e permite ao usuário escolher entre continuar ou novo jogo.
    *
-   * @returns {Promise<void>} Promise que resolve quando o jogo termina.
+   * @returns {Promise<void>}
    */
   async start() {
     while (true) {
@@ -58,14 +58,13 @@ class TerminalRPG {
       if (choice === "continue") {
         const loaded = await this.manageSaves();
         if (!loaded) {
-          // usuário só voltou/excluiu -> repete o loop
           InterfaceUtils.clearScreen();
           continue;
         }
       } else {
         await this.createNewCharacterFlow();
       }
-      break; // saiu do loop e segue para o menu principal
+      break;
     }
 
     this.time.start(this.game);
@@ -74,10 +73,9 @@ class TerminalRPG {
   }
 
   /**
-   * Exibe o menu principal do jogo com todas as opções disponíveis.
-   * Loop principal que mantém o jogo rodando até que o usuário escolha sair.
+   * Exibe o menu principal do jogo.
    *
-   * @returns {Promise<void>} Promise que resolve quando o usuário sai do jogo.
+   * @returns {Promise<void>}
    */
   async showMainMenu() {
     while (this.isRunning) {
@@ -139,15 +137,14 @@ class TerminalRPG {
 
   /**
    * Exibe a tela do mapa do mundo.
-   * Funcionalidade placeholder que será implementada futuramente.
    *
-   * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
+   * @returns {Promise<void>}
    */
   async showMap() {
     InterfaceUtils.clearScreen();
     InterfaceUtils.drawBox("[M] MAPA DO MUNDO", 60);
     console.log();
-    
+
     // localização atual
     let here = this.map.getCurrentLocation(this.game);
     if (!here) {
@@ -178,19 +175,17 @@ class TerminalRPG {
     if (pick === "back") return;
 
     if (pick === "up") {
-      // subir 1 nível na hierarquia (se possível)
       const node = here;
       const parentKey = node.parentPath.join(">");
       const parent = this.map.getLocation(parentKey);
       if (parent) {
         this.map.setCurrentLocation(this.game, parent);
-        this.game.save(); // opcional
+        this.game.save();
       }
       return;
     }
 
     if (pick === "children") {
-      // listar filhos diretos (ex.: da 'cidade' saem 'villas'; da 'vila' saem 'locals')
       const kids = this.map.listChildren(here);
       if (!kids.length) {
         InterfaceUtils.showInfo("Nada para explorar aqui (nível mais baixo).");
@@ -214,22 +209,20 @@ class TerminalRPG {
       }
 
       this.map.setCurrentLocation(this.game, dest);
-      this.game.save(); // opcional: salva viagem
+      this.game.save();
       InterfaceUtils.showSuccess(`Você viajou para ${dest.name}.`);
       await InterfaceUtils.waitForInput();
 
-      // Se o novo destino for 'local' (ex.: loja_armas), aqui você abre o sistema correspondente
-      // ex.: if (dest.type === 'local' && dest.id === 'loja_armas') openWeaponShop();
-      if (dest.type === 'inn') {
+      if (dest.type === "inn") {
         await this.openInn();
       }
     }
   }
 
   /**
-   * Exibe o menu de missões e permite aceitar ou visualizar missões.
+   * Exibe o menu de missões, aceitar e visualizar detalhes.
    *
-   * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
+   * @returns {Promise<void>}
    */
   async showQuests() {
     while (true) {
@@ -262,20 +255,18 @@ class TerminalRPG {
           value: q.id,
           symbol: ">",
         }));
-        const picked = await InterfaceUtils.showChoices(
-          "Missões disponíveis:",
-          opts,
-          true
-        );
+        const picked = await InterfaceUtils.showChoices("Missões disponíveis:", opts, true);
         if (picked === "back") continue;
 
         const q = this.quest.getQuestById(picked);
         InterfaceUtils.clearScreen();
+
         const detailLines = [
           `[${q.name}]`,
           `[${q.type.toUpperCase()}]`,
           q.description,
         ];
+
         if (q.hint) detailLines.push(`Dica: ${q.hint}`);
         if (q.time) detailLines.push(`Disponível das ${q.time.start}h às ${q.time.end}h`);
         if (q.conditions) {
@@ -285,18 +276,19 @@ class TerminalRPG {
           if (q.conditions.relations) {
             for (const [n, v] of Object.entries(q.conditions.relations)) cond.push(`${n}: ${v}`);
           }
-          if (cond.length) detailLines.push(`Condições: ${cond.join(', ')}`);
+          if (cond.length) detailLines.push(`Condições: ${cond.join(", ")}`);
         }
         if (q.objectives?.length) {
-          detailLines.push('Objetivos:');
+          detailLines.push("Objetivos:");
           q.objectives.forEach((o) => detailLines.push(`- ${o.description || o}`));
         }
         if (q.rewards) {
           const rewards = Object.entries(q.rewards)
-            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-            .join(', ');
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+            .join(", ");
           detailLines.push(`Recompensas: ${rewards}`);
         }
+
         InterfaceUtils.drawBox(detailLines, 60);
         console.log();
 
@@ -318,6 +310,7 @@ class TerminalRPG {
           await InterfaceUtils.waitForInput();
           continue;
         }
+
         const opts = active.map((q) => ({
           name: `[${q.type.toUpperCase()}] ${q.name}`,
           value: q.id,
@@ -325,8 +318,10 @@ class TerminalRPG {
         }));
         const picked = await InterfaceUtils.showChoices("Missões ativas:", opts, true);
         if (picked === "back") continue;
+
         const q = this.quest.getQuestById(picked);
         InterfaceUtils.clearScreen();
+
         const progress = `${this.quest.getProgress(this.game, q.id)}/${q.objectives?.[0]?.required || 0}`;
         const lines = [
           `[${q.name}]`,
@@ -341,8 +336,9 @@ class TerminalRPG {
           if (q.conditions.relations) {
             for (const [n, v] of Object.entries(q.conditions.relations)) cond.push(`${n}: ${v}`);
           }
-          if (cond.length) lines.push(`Condições: ${cond.join(', ')}`);
+          if (cond.length) lines.push(`Condições: ${cond.join(", ")}`);
         }
+
         InterfaceUtils.drawBox(lines, 60);
         console.log();
         await InterfaceUtils.waitForInput();
@@ -382,11 +378,14 @@ class TerminalRPG {
         this.game.player.fame >= 50 && npc.dialogueFamous.length
           ? npc.dialogueFamous[0]
           : npc.dialogue[0] || "...";
-      InterfaceUtils.drawBox([
-        `[${npc.name}]`,
-        fameDialogue,
-        `Relacionamento: ${this.getRelationship(npc.id)}`,
-      ], 60);
+      InterfaceUtils.drawBox(
+        [
+          `[${npc.name}]`,
+          fameDialogue,
+          `Relacionamento: ${this.getRelationship(npc.id)}`,
+        ],
+        60
+      );
       console.log();
 
       const choice = await InterfaceUtils.showChoices(
@@ -407,8 +406,8 @@ class TerminalRPG {
             InterfaceUtils.showSuccess("Missão concluída!");
             if (rewards) {
               const r = Object.entries(rewards)
-                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-                .join(', ');
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+                .join(", ");
               InterfaceUtils.showInfo(`Recompensas: ${r}`);
             }
           });
@@ -429,21 +428,23 @@ class TerminalRPG {
 
   /** Executa árvore de diálogo com opções. */
   async runDialogue(npc) {
-    let node = npc.dialogueTree.find(n => n.id === 'start');
+    let node = npc.dialogueTree.find((n) => n.id === "start");
     while (node) {
       InterfaceUtils.clearScreen();
       InterfaceUtils.drawBox([`[${npc.name}]`, node.text], 60);
       console.log();
       if (!node.options || !node.options.length) break;
-      const opts = node.options.map((o, i) => ({ name: o.text, value: i, symbol: '>' }));
-      const pick = await InterfaceUtils.showChoices('Escolha uma resposta:', opts, false);
+
+      const opts = node.options.map((o, i) => ({ name: o.text, value: i, symbol: ">" }));
+      const pick = await InterfaceUtils.showChoices("Escolha uma resposta:", opts, false);
       const opt = node.options[pick];
+
       if (opt.rel) this.changeRelationship(npc.id, opt.rel);
       if (!opt.next) {
         await InterfaceUtils.waitForInput();
-        return this.quest.recordTalk(this.game, npc.id);
+        return this.quest.recordTalk(this.game, npc.id); // pode completar/atualizar objetivos tipo "talk"
       }
-      node = npc.dialogueTree.find(n => n.id === opt.next);
+      node = npc.dialogueTree.find((n) => n.id === opt.next);
     }
     return [];
   }
@@ -482,23 +483,24 @@ class TerminalRPG {
     const hour = this.time.getHour(this.game);
     const monsters = here ? this.monster.getMonstersAt(here.id, hour) : [];
     if (!monsters.length) {
-      InterfaceUtils.showInfo('Nenhum monstro aparece.');
+      InterfaceUtils.showInfo("Nenhum monstro aparece.");
       await InterfaceUtils.waitForInput();
       return;
     }
-    const opts = monsters.map(m => ({ name: m.name, value: m.id, symbol: '>' }));
-    const pick = await InterfaceUtils.showChoices('Monstros encontrados:', opts, true);
-    if (pick === 'back') return;
-    const monster = monsters.find(m => m.id === pick);
+    const opts = monsters.map((m) => ({ name: m.name, value: m.id, symbol: ">" }));
+    const pick = await InterfaceUtils.showChoices("Monstros encontrados:", opts, true);
+    if (pick === "back") return;
+
+    const monster = monsters.find((m) => m.id === pick);
     const win = await this.combat.fight(this.game.player, monster);
     if (win) {
       const completed = this.quest.recordKill(this.game, monster.id);
       completed.forEach(({ quest, rewards }) => {
-        InterfaceUtils.showSuccess('Missão concluída!');
+        InterfaceUtils.showSuccess("Missão concluída!");
         if (rewards) {
           const r = Object.entries(rewards)
-            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
-            .join(', ');
+            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+            .join(", ");
           InterfaceUtils.showInfo(`Recompensas: ${r}`);
         }
       });
@@ -508,9 +510,8 @@ class TerminalRPG {
 
   /**
    * Exibe o perfil detalhado do jogador.
-   * Mostra todas as estatísticas do personagem em uma interface compacta.
    *
-   * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
+   * @returns {Promise<void>}
    */
   async showProfile() {
     InterfaceUtils.clearScreen();
@@ -534,16 +535,14 @@ class TerminalRPG {
       `[OURO: ${p.gold}] [FAMA: ${p.fame}].`,
     ];
 
-    // janela compacta no mesmo estilo do HUD
     InterfaceUtils.drawBox(profileLines, 40);
     await InterfaceUtils.waitForInput();
   }
 
   /**
    * Exibe as configurações do jogo.
-   * Funcionalidade placeholder que será implementada futuramente.
    *
-   * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
+   * @returns {Promise<void>}
    */
   async showConfigs() {
     InterfaceUtils.clearScreen();
@@ -556,7 +555,7 @@ class TerminalRPG {
   /**
    * Permite ao usuário selecionar e carregar um slot de save específico.
    *
-   * @returns {Promise<boolean>} Promise que resolve com true se um save foi carregado com sucesso.
+   * @returns {Promise<boolean>}
    */
   async selectAndLoadSlot() {
     const slots = this.game.listSaves().filter((s) => s.exists);
@@ -579,10 +578,9 @@ class TerminalRPG {
   }
 
   /**
-   * Gerencia a interface de saves, permitindo carregar ou excluir saves.
-   * Loop que permite ao usuário navegar entre diferentes ações de save.
+   * Gerencia a interface de saves (carregar/excluir).
    *
-   * @returns {Promise<boolean>} Promise que resolve com true se um save foi carregado, false se o usuário voltou.
+   * @returns {Promise<boolean>}
    */
   async manageSaves() {
     while (true) {
@@ -593,7 +591,6 @@ class TerminalRPG {
         return false;
       }
 
-      // opções de carregar
       const opts = saves
         .filter((s) => s.exists)
         .map((s) => ({
@@ -602,7 +599,6 @@ class TerminalRPG {
           symbol: `[${s.slot}]`,
         }));
 
-      // opções de excluir (apenas slots existentes)
       saves
         .filter((s) => s.exists)
         .forEach((s) => {
@@ -613,16 +609,12 @@ class TerminalRPG {
           });
         });
 
-      // caso não exista nenhum save, dá opção de voltar
       if (!opts.length) {
-        await InterfaceUtils.showInfo(
-          "Não há saves para continuar. Crie um novo jogo."
-        );
+        await InterfaceUtils.showInfo("Não há saves para continuar. Crie um novo jogo.");
         await InterfaceUtils.waitForInput();
         return false;
       }
 
-      // opção Voltar
       opts.push({ name: "Voltar", value: "back", symbol: "[B]" });
 
       InterfaceUtils.clearScreen();
@@ -645,7 +637,6 @@ class TerminalRPG {
         if (ok) return true;
         InterfaceUtils.showError(`Não foi possível carregar o Slot ${slot}.`);
         await InterfaceUtils.waitForInput();
-        // volta ao loop para tentar outra ação
       }
 
       if (action === "delete") {
@@ -657,25 +648,21 @@ class TerminalRPG {
           InterfaceUtils.showSuccess(`Slot ${slot} excluído!`);
           await InterfaceUtils.waitForInput();
         }
-        // volta ao loop (lista atualiza)
       }
     }
   }
 
   /**
    * Salva o progresso atual do jogo.
-   * Exibe mensagem de sucesso ou erro dependendo do resultado da operação.
    *
-   * @returns {Promise<void>} Promise que resolve quando o usuário confirma a mensagem.
+   * @returns {Promise<void>}
    */
   async saveProgress() {
     const ok = this.game.save();
     if (ok) {
       InterfaceUtils.showSuccess("Progresso salvo com sucesso!");
     } else {
-      InterfaceUtils.showError(
-        "Não foi possível salvar. Abra um slot primeiro (Novo Jogo/Continuar)."
-      );
+      InterfaceUtils.showError("Não foi possível salvar. Abra um slot primeiro (Novo Jogo/Continuar).");
     }
     await InterfaceUtils.waitForInput();
   }
@@ -683,21 +670,17 @@ class TerminalRPG {
   /**
    * Confirma a saída do jogo e salva o progresso antes de encerrar.
    *
-   * @returns {Promise<void>} Promise que resolve quando o jogo é encerrado.
+   * @returns {Promise<void>}
    */
   async exitAndSave() {
-    const confirmed = await InterfaceUtils.confirm(
-      "Tem certeza que deseja sair?"
-    );
+    const confirmed = await InterfaceUtils.confirm("Tem certeza que deseja sair?");
     if (!confirmed) return;
 
     const ok = this.game.save();
     if (ok) {
       InterfaceUtils.showSuccess("Progresso salvo! Até logo!");
     } else {
-      InterfaceUtils.showError(
-        "Não foi possível salvar antes de sair (slot indefinido)."
-      );
+      InterfaceUtils.showError("Não foi possível salvar antes de sair (slot indefinido).");
     }
     this.time.stop();
     this.isRunning = false;
@@ -705,12 +688,10 @@ class TerminalRPG {
 
   /**
    * Fluxo completo de criação de um novo personagem.
-   * Permite ao usuário escolher um slot e criar um personagem através do CharacterCreator.
    *
-   * @returns {Promise<void>} Promise que resolve quando o personagem é criado e o jogo inicia.
+   * @returns {Promise<void>}
    */
   async createNewCharacterFlow() {
-    // escolher slot (livre, ou qual substituir)
     const all = this.game.listSaves();
     const free = all.filter((s) => !s.exists);
     let slot = null;
@@ -721,11 +702,7 @@ class TerminalRPG {
         value: s.slot,
         symbol: `[${s.slot}]`,
       }));
-      slot = await InterfaceUtils.showChoices(
-        "Escolha um slot vazio para salvar:",
-        opts,
-        false
-      );
+      slot = await InterfaceUtils.showChoices("Escolha um slot vazio para salvar:", opts, false);
     } else {
       const opts = all.map((s) => ({
         name: `Substituir Slot ${s.slot} — ${s.name} (Nv ${s.level})`,
@@ -739,9 +716,8 @@ class TerminalRPG {
       );
     }
 
-    // criar personagem
-    const creator = new CharacterCreator(this.game); // ok passar GM, mas vamos usar o retorno
-    const result = await creator.start(); // { player, name, traits } (após ajuste no CharacterCreator)
+    const creator = new CharacterCreator(this.game);
+    const result = await creator.start(); // { player, name, traits }
     let player = result?.player;
 
     this.game.startNewGame(player, slot);
@@ -750,8 +726,7 @@ class TerminalRPG {
   }
 
   /**
-   * Desenha o HUD (Heads-Up Display) do jogador no menu principal.
-   * Exibe informações básicas do personagem em uma caixa compacta.
+   * Desenha o HUD do jogador no menu principal.
    */
   drawPlayerHUD() {
     const p = this.game.player;
@@ -763,7 +738,7 @@ class TerminalRPG {
       `[NÍVEL: ${p.level}].`,
       `[HP: ${p.hp}/${p.maxHp}] [MP: ${p.mp}/${p.maxMp}].`,
       `[OURO: ${p.gold}] [FAMA: ${p.fame}].`,
-      here ? `[LOCAL: ${here.name}]` : '',
+      here ? `[LOCAL: ${here.name}]` : "",
       `[HORA: ${this.time.getFormattedTime(this.game)}]`,
     ].filter(Boolean);
 

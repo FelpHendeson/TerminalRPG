@@ -11,11 +11,11 @@ const path = require('path');
  * @property {QuestType} type
  * @property {string} description
  * @property {string} [location] - ID da localidade onde a missão está disponível
- * @property {{start:number,end:number}} [time] - janela de horas em que a missão fica disponível
- * @property {string} [visibility] - 'normal' ou 'secret'
- * @property {string} [hint]
+ * @property {{start:number,end:number}} [time] - janela de horas em que a missão fica disponível (pode cruzar meia-noite)
+ * @property {'normal'|'secret'} [visibility] - visibilidade da missão
+ * @property {string} [hint] - dica exibida em missões normais
  * @property {{ minLevel?: number, fame?: number, relations?: Object<string, number> }} [conditions]
- * @property {Array<{type:string,target:string,required:number,description:string}>} [objectives]
+ * @property {Array<{type:'talk'|'kill'|string,target:string,required:number,description:string}>} [objectives]
  * @property {{gold?:number,fame?:number,xp?:number,items?:string[]}} [rewards]
  */
 
@@ -59,18 +59,28 @@ class QuestManager {
     const hour = game.flags?.time?.hour ?? 0;
 
     return this.quests.filter(q => {
+      // já aceita/concluída?
       const status = game.flags?.quests?.[q.id];
       if (status) return false;
+
+      // localização
       if (q.location && q.location !== currentLoc) return false;
+
+      // visibilidade/segredo (apenas se já foi desbloqueada por algum evento)
       if (q.visibility === 'secret' && !(game.flags?.unlockedQuests?.includes(q.id))) return false;
+
+      // janela de tempo (suporta cruzar meia-noite)
       if (q.time) {
         const { start, end } = q.time;
         if (start < end) {
           if (!(hour >= start && hour < end)) return false;
         } else {
+          // ex.: 22 -> 5
           if (!(hour >= start || hour < end)) return false;
         }
       }
+
+      // condições de nível/fama/relações
       if (q.conditions?.minLevel && game.player.level < q.conditions.minLevel) return false;
       if (q.conditions?.fame && game.player.fame < q.conditions.fame) return false;
       if (q.conditions?.relations) {
@@ -79,6 +89,7 @@ class QuestManager {
           if (rel < min) return false;
         }
       }
+
       return true;
     });
   }
@@ -121,13 +132,19 @@ class QuestManager {
     if (!quest) return null;
     game.flags.quests = game.flags.quests || {};
     if (game.flags.quests[questId] !== 'accepted') return null;
+
     game.flags.quests[questId] = 'completed';
+
     const rewards = quest.rewards || {};
     if (rewards.gold) game.player.gold += rewards.gold;
     if (rewards.fame) game.player.fame += rewards.fame;
     if (rewards.xp) game.player.gainXP(rewards.xp);
     if (Array.isArray(rewards.items)) {
-      rewards.items.forEach(it => game.player.addItem(it));
+      rewards.items.forEach(it => {
+        if (typeof game.player.addItem === 'function') {
+          game.player.addItem(it);
+        }
+      });
     }
     return rewards;
   }
@@ -142,7 +159,7 @@ class QuestManager {
       game.flags.questProgress[q.id] = (game.flags.questProgress[q.id] || 0) + 1;
       if (game.flags.questProgress[q.id] >= obj.required) {
         const rewards = this.completeQuest(game, q.id);
-        completed.push({ quest: q, rewards });
+        if (rewards) completed.push({ quest: q, rewards });
       }
     });
     return completed;
@@ -158,7 +175,7 @@ class QuestManager {
       game.flags.questProgress[q.id] = (game.flags.questProgress[q.id] || 0) + 1;
       if (game.flags.questProgress[q.id] >= obj.required) {
         const rewards = this.completeQuest(game, q.id);
-        completed.push({ quest: q, rewards });
+        if (rewards) completed.push({ quest: q, rewards });
       }
     });
     return completed;

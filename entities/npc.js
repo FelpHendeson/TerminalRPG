@@ -8,24 +8,25 @@ const Entity = require('./entity');
 class NPC extends Entity {
   /**
    * Construtor da classe NPC.
-   * 
+   *
    * @param {Object} options - Opções de configuração do NPC.
-   * @param {string} [options.id=null] - ID único do NPC.
-   * @param {string} [options.name='Pessoa'] - Nome do NPC.
-   * @param {number} [options.level=1] - Nível do NPC.
-   * @param {number} [options.maxHp=50] - Pontos de vida máximos.
-   * @param {number} [options.atk=5] - Pontos de ataque.
-   * @param {number} [options.def=2] - Pontos de defesa.
-   * @param {number} [options.spd=3] - Pontos de velocidade.
-   * @param {number} [options.gold=0] - Quantidade de ouro.
-   * @param {Array} [options.skills=[]] - Lista de habilidades.
-   * @param {number} [options.relationship=0] - Relacionamento com o jogador (-100 a 100).
-   * @param {string} [options.role='villager'] - Papel do NPC (merchant, quest_giver, guard, etc.).
-  * @param {Array} [options.dialogue=[]] - Lista de diálogos disponíveis.
-  * @param {Array} [options.dialogueFamous=[]] - Diálogos quando jogador tem alta fama.
-  * @param {Array} [options.dialogueTree=[]] - Árvores de diálogo com opções.
-  * @param {Array} [options.schedules=[]] - Horários e locais onde o NPC pode ser encontrado.
-  */
+   * @param {string}  [options.id=null]            - ID único do NPC.
+   * @param {string}  [options.name='Pessoa']      - Nome do NPC.
+   * @param {number}  [options.level=1]            - Nível do NPC.
+   * @param {number}  [options.maxHp=50]           - Pontos de vida máximos.
+   * @param {number}  [options.maxMp=30]           - Pontos de mana máximos.
+   * @param {number}  [options.atk=5]              - Pontos de ataque.
+   * @param {number}  [options.def=2]              - Pontos de defesa.
+   * @param {number}  [options.spd=3]              - Pontos de velocidade.
+   * @param {number}  [options.gold=0]             - Quantidade de ouro.
+   * @param {Array}   [options.skills=[]]          - Lista de habilidades.
+   * @param {number}  [options.relationship=0]     - Relacionamento com o jogador (-100 a 100).
+   * @param {string}  [options.role='villager']    - Papel do NPC (merchant, quest_giver, guard, etc.).
+   * @param {Array}   [options.dialogue=[]]        - Lista de diálogos disponíveis.
+   * @param {Array}   [options.dialogueFamous=[]]  - Diálogos quando jogador tem alta fama.
+   * @param {Array}   [options.dialogueTree=[]]    - Árvores de diálogo com opções.
+   * @param {Array}   [options.schedules=[]]       - Horários e locais onde o NPC pode ser encontrado.
+   */
   constructor({
     id = null,
     name = 'Pessoa',
@@ -55,7 +56,7 @@ class NPC extends Entity {
 
   /**
    * Altera o relacionamento do NPC com o jogador.
-   * 
+   *
    * @param {number} delta - Mudança no relacionamento (pode ser positivo ou negativo).
    */
   changeRelationship(delta) {
@@ -64,7 +65,7 @@ class NPC extends Entity {
 
   /**
    * Obtém todas as estatísticas do NPC, incluindo relacionamento e papel.
-   * 
+   *
    * @returns {Object} Objeto contendo todas as estatísticas do NPC.
    */
   getStats() {
@@ -82,7 +83,7 @@ class NPC extends Entity {
 
   /**
    * Converte o NPC para formato JSON.
-   * 
+   *
    * @returns {Object} Objeto JSON representando o NPC.
    */
   toJSON() {
@@ -94,7 +95,7 @@ class NPC extends Entity {
 
   /**
    * Cria uma instância de NPC a partir de um objeto JSON.
-   * 
+   *
    * @param {Object} json - Objeto JSON contendo os dados do NPC.
    * @returns {NPC} Nova instância de NPC.
    */

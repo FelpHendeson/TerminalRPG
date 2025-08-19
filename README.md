@@ -61,6 +61,29 @@ Monstros são definidos em `data/monsters.json`:
 Use a opção **Explorar** no menu principal para enfrentar monstros disponíveis
 na localidade e horário atuais. Derrotá-los concede XP e ouro e pode contar
 para missões de caça.
+
+```
+{
+"id": "main_001",
+"name": "A Chegada",
+"type": "primary", // ou "secondary"
+"description": "Fale com o ancião...",
+"location": "vila_inicial",
+"objectives": ["Conversar com o ancião"],
+"rewards": { "xp": 50, "gold": 10, "fame": 5 },
+"conditions": { "minLevel": 1, "relations": { "chefe_vila": 5 } }
+}
+```
+
+Use `type` para diferenciar missões principais e secundárias. O campo `location`
+recebe o `id` da localidade onde a missão fica disponível. Utilize `objectives`
+e `rewards` para detalhar cada missão. Em `conditions` é possível exigir nível
+mínimo, fama (`fame`) ou relacionamento com NPCs específicos (`relations`).
+
+Missões aceitas ficam marcadas em `flags.quests`. Ao concluir uma missão via
+menu de missões, as recompensas são entregues automaticamente e o status passa
+para `completed`.
+
 ### Histórias
 Eventos de história são definidos em `data/story.json` e apresentados
 sequencialmente quando o jogo inicia. Cada evento possui `id`, `text` e pode
@@ -105,6 +128,9 @@ avançar o relógio. O jogador possui um atributo de fama (`fame`) que pode ser
 recompensado em missões e altera diálogos com NPCs.
 
 ## Getting started
+
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
