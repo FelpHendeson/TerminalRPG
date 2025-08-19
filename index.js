@@ -5,6 +5,8 @@ const MapManager = require("./managers/mapManager");
 const QuestManager = require("./managers/questManager");
 const NPCManager = require("./managers/npcManager");
 const TimeManager = require("./managers/timeManager");
+const StoryManager = require("./managers/storyManager");
+const SkillManager = require("./managers/skillManager");
 const Player = require("./entities/player");
 
 /**
@@ -22,6 +24,8 @@ class TerminalRPG {
     this.quest = new QuestManager(); // gerencia sistema de missões
     this.npc = new NPCManager(); // gerencia NPCs
     this.time = new TimeManager(); // ciclo de tempo
+    this.story = new StoryManager(); // eventos da história
+    this.skills = new SkillManager(); // habilidades
     this.isRunning = true;
   }
 
@@ -61,6 +65,7 @@ class TerminalRPG {
     }
 
     this.time.start(this.game);
+    await this.story.play(this.game);
     await this.showMainMenu();
   }
 
@@ -299,6 +304,17 @@ class TerminalRPG {
           await InterfaceUtils.waitForInput();
           continue;
         }
+        const opts = active.map((q) => ({
+          name: `[${q.type.toUpperCase()}] ${q.name}`,
+          value: q.id,
+          symbol: ">",
+        }));
+        opts.push({ name: "Voltar", value: "back", symbol: "[B]" });
+        const picked = await InterfaceUtils.showChoices("Missões ativas:", opts, true);
+        if (picked === "back") continue;
+        this.quest.completeQuest(this.game, picked);
+        this.game.save();
+        InterfaceUtils.showSuccess("Missão concluída!");
         const lines = active.map((q) => `[${q.type.toUpperCase()}] ${q.name}`);
         InterfaceUtils.drawBox(lines, 60);
         await InterfaceUtils.waitForInput();

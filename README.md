@@ -13,14 +13,14 @@ As missões são armazenadas em `data/quests.json` e possuem o formato:
 
 ```
 {
-  "id": "main_001",
-  "name": "A Chegada",
-  "type": "primary", // ou "secondary"
-  "description": "Fale com o ancião...",
-  "location": "vila_inicial",
-  "objectives": ["Conversar com o ancião"],
-  "rewards": { "xp": 50, "gold": 10, "fame": 5 },
-  "conditions": { "minLevel": 1, "relations": { "chefe_vila": 5 } }
+"id": "main_001",
+"name": "A Chegada",
+"type": "primary", // ou "secondary"
+"description": "Fale com o ancião...",
+"location": "vila_inicial",
+"objectives": ["Conversar com o ancião"],
+"rewards": { "xp": 50, "gold": 10, "fame": 5 },
+"conditions": { "minLevel": 1, "relations": { "chefe_vila": 5 } }
 }
 ```
 
@@ -29,6 +29,31 @@ recebe o `id` da localidade onde a missão fica disponível. Utilize `objectives
 e `rewards` para detalhar cada missão. Em `conditions` é possível exigir nível
 mínimo, fama (`fame`) ou relacionamento com NPCs específicos (`relations`).
 
+Missões aceitas ficam marcadas em `flags.quests`. Ao concluir uma missão via
+menu de missões, as recompensas são entregues automaticamente e o status passa
+para `completed`.
+
+### Histórias
+Eventos de história são definidos em `data/story.json` e apresentados
+sequencialmente quando o jogo inicia. Cada evento possui `id`, `text` e pode
+ter `choices` levando a outros eventos:
+
+```
+{
+"id": "start",
+"text": "Você desperta sem memória...",
+"choices": [{ "text": "Seguir", "next": "intro" }]
+}
+```
+
+O progresso atual fica salvo em `flags.storyId`.
+
+### Habilidades
+Habilidades utilizam o arquivo `data/skills.json` com dados como `id`, `name`,
+`type` (`active` ou `passive`), elemento e descrição. O jogador pode aprender
+habilidades e equipar até **4 ativas** e **2 passivas**. O gerenciamento é
+realizado pelo `SkillManager`.
+
 ### NPCs
 NPCs são definidos em `data/npcs.json` com campos como `id`, `name`,
 `dialogue`, `dialogueFamous` e `schedules` indicando em quais horas estão
@@ -36,11 +61,11 @@ presentes em determinadas localidades.
 
 ```
 {
-  "id": "chefe_vila",
-  "name": "Chefe da Vila",
-  "dialogue": ["Saudações, viajante."],
-  "dialogueFamous": ["Ah, o herói de quem todos falam!"],
-  "schedules": [ { "location": "vila_inicial", "start": 8, "end": 20 } ]
+"id": "chefe_vila",
+"name": "Chefe da Vila",
+"dialogue": ["Saudações, viajante."],
+"dialogueFamous": ["Ah, o herói de quem todos falam!"],
+"schedules": [ { "location": "vila_inicial", "start": 8, "end": 20 } ]
 }
 ```
 
@@ -50,10 +75,13 @@ equivale a 60 segundos do mundo real. Dormir na estalagem avança 8 horas e
 restaura 50% de HP e MP. Interagir ou passar tempo com NPCs também pode
 avançar o relógio. O jogador possui um atributo de fama (`fame`) que pode ser
 recompensado em missões e altera diálogos com NPCs.
-=======
-recebe o `id` da localidade onde a missão fica disponível.
+
+---
 
 ## Getting started
+
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 

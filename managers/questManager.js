@@ -90,6 +90,23 @@ class QuestManager {
     const qFlags = game.flags?.quests || {};
     return this.quests.filter(q => qFlags[q.id] === 'accepted');
   }
+
+  /**
+   * Marca uma missão como concluída e aplica recompensas.
+   * @param {import('./gameManager')} game
+   * @param {string} questId
+   */
+  completeQuest(game, questId) {
+    const quest = this.getQuestById(questId);
+    if (!quest) return;
+    game.flags.quests = game.flags.quests || {};
+    if (game.flags.quests[questId] !== 'accepted') return;
+    game.flags.quests[questId] = 'completed';
+    const rewards = quest.rewards || {};
+    if (rewards.gold) game.player.gold += rewards.gold;
+    if (rewards.fame) game.player.fame += rewards.fame;
+    if (rewards.xp) game.player.gainXP(rewards.xp);
+  }
 }
 
 module.exports = QuestManager;
