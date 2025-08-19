@@ -2,6 +2,7 @@ const InterfaceUtils = require("./utils/interfaceUtils");
 const GameManager = require("./managers/gameManager");
 const CharacterCreator = require("./core/characterCreator");
 const MapManager = require("./managers/mapManager");
+const QuestManager = require("./managers/questManager");
 const Player = require("./entities/player");
 
 /**
@@ -16,6 +17,7 @@ class TerminalRPG {
   constructor() {
     this.game = new GameManager();
     this.map = new MapManager(); // carrega e indexa worldMap.json
+    this.quest = new QuestManager(); // gerencia sistema de missões
     this.isRunning = true;
   }
 
@@ -200,17 +202,80 @@ class TerminalRPG {
   }
 
   /**
-   * Exibe o menu de missões.
-   * Funcionalidade placeholder que será implementada futuramente.
+   * Exibe o menu de missões e permite aceitar ou visualizar missões.
    *
    * @returns {Promise<void>} Promise que resolve quando o usuário volta ao menu.
    */
   async showQuests() {
-    InterfaceUtils.clearScreen();
-    InterfaceUtils.drawBox("[Q] MENU DE MISSÕES", 60);
-    console.log();
-    InterfaceUtils.showInfo("Sistema de missões será implementado em breve!");
-    await InterfaceUtils.waitForInput();
+    while (true) {
+      InterfaceUtils.clearScreen();
+      InterfaceUtils.drawBox("[Q] MENU DE MISSÕES", 60);
+      console.log();
+
+      const choice = await InterfaceUtils.showChoices(
+        "Selecione:",
+        [
+          { name: "Quests disponíveis", value: "available", symbol: "[D]" },
+          { name: "Missões ativas", value: "active", symbol: "[A]" },
+          { name: "Voltar", value: "back", symbol: "[B]" },
+        ],
+        false
+      );
+
+      if (choice === "back") return;
+
+      if (choice === "available") {
+        const quests = this.quest.getAvailableQuests(this.game);
+        if (!quests.length) {
+          InterfaceUtils.showInfo("Nenhuma missão disponível aqui.");
+          await InterfaceUtils.waitForInput();
+          continue;
+        }
+
+        const opts = quests.map((q) => ({
+          name: `${q.name} (${q.type})`,
+          value: q.id,
+          symbol: ">",
+        }));
+        const picked = await InterfaceUtils.showChoices(
+          "Missões disponíveis:",
+          opts,
+          true
+        );
+        if (picked === "back") continue;
+
+        const q = this.quest.getQuestById(picked);
+        InterfaceUtils.clearScreen();
+        InterfaceUtils.drawBox([
+          `[${q.name}]`,
+          `[${q.type.toUpperCase()}]`,
+          q.description,
+        ], 60);
+        console.log();
+
+        const accept = await InterfaceUtils.confirm("Aceitar esta missão?");
+        if (accept) {
+          this.quest.acceptQuest(this.game, q.id);
+          this.game.save();
+          InterfaceUtils.showSuccess("Missão aceita!");
+        } else {
+          InterfaceUtils.showInfo("Missão rejeitada.");
+        }
+        await InterfaceUtils.waitForInput();
+      }
+
+      if (choice === "active") {
+        const active = this.quest.getActiveQuests(this.game);
+        if (!active.length) {
+          InterfaceUtils.showInfo("Nenhuma missão ativa.");
+          await InterfaceUtils.waitForInput();
+          continue;
+        }
+        const lines = active.map((q) => `[${q.type.toUpperCase()}] ${q.name}`);
+        InterfaceUtils.drawBox(lines, 60);
+        await InterfaceUtils.waitForInput();
+      }
+    }
   }
 
   /**

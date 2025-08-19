@@ -1,6 +1,29 @@
 # terminalRPG
 
+TerminalRPG é um jogo de RPG baseado em texto executado no terminal.
 
+## Adicionando conteúdo
+
+### Localidades
+As localidades do mundo estão definidas em `data/worldMap.json`. Cada entrada possui
+`id`, `name`, `description` e pode conter sublocalizações como continentes, reinos e vilas.
+
+### Missões
+As missões são armazenadas em `data/quests.json` e possuem o formato:
+
+```
+{
+  "id": "main_001",
+  "name": "A Chegada",
+  "type": "primary", // ou "secondary"
+  "description": "Fale com o ancião...",
+  "location": "vila_inicial",
+  "conditions": { "minLevel": 1 }
+}
+```
+
+Use `type` para diferenciar missões principais e secundárias. O campo `location`
+recebe o `id` da localidade onde a missão fica disponível.
 
 ## Getting started
 
