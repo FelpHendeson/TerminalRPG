@@ -26,6 +26,10 @@ class SaveManager {
    */
   ensureDir() {
     if (!fs.existsSync(this.saveDir)) fs.mkdirSync(this.saveDir, { recursive: true });
+    if (!fs.existsSync(this.saveDir)) {
+      fs.mkdirSync(this.saveDir, { recursive: true });
+    }
+    return fs.existsSync(this.saveDir);
   }
 
   /**
@@ -58,9 +62,9 @@ class SaveManager {
           slots.push({
             slot: s,
             exists: true,
-            name: raw?.player?.name || `Slot ${s}`,
-            level: raw?.player?.level || 1,
-            lastSaved: raw?.savedAt || null,
+            name: raw?.player?.name ?? `Slot ${s}`,
+            level: raw?.player?.level ?? 1,
+            lastSaved: raw?.savedAt ?? null,
           });
         } catch {
           slots.push({ slot: s, exists: false });
