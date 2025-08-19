@@ -14,33 +14,44 @@ class Player extends Entity {
    * @param {string} [options.name="Herói"] - Nome do jogador.
    * @param {number} [options.level=1] - Nível do jogador.
    * @param {number} [options.maxHp=100] - Pontos de vida máximos.
+   * @param {number} [options.maxMp=50] - Pontos de mana máximos.
    * @param {number} [options.atk=10] - Pontos de ataque.
    * @param {number} [options.def=5] - Pontos de defesa.
    * @param {number} [options.spd=5] - Pontos de velocidade.
    * @param {number} [options.gold=0] - Quantidade de ouro.
-   * @param {Array} [options.skills=[]] - Lista de habilidades.
+   * @param {Array} [options.skills=[]] - Habilidades aprendidas.
+   * @param {Array} [options.equippedActives=[]] - Habilidades ativas equipadas.
+   * @param {Array} [options.equippedPassives=[]] - Habilidades passivas equipadas.
    * @param {number} [options.xp=0] - Experiência atual.
    * @param {number} [options.xpToLevelUp=100] - Experiência necessária para o próximo nível.
    * @param {Array} [options.inventory=[]] - Inventário do jogador.
-   */
+   * @param {number} [options.fame=0] - Fama do jogador.
+  */
   constructor({
     id = null,
     name = "Herói",
     level = 1,
     maxHp = 100,
+    maxMp = 50,
     atk = 10,
     def = 5,
     spd = 5,
     gold = 0,
     skills = [],
+    equippedActives = [],
+    equippedPassives = [],
     xp = 0,
     xpToLevelUp = 100,
     inventory = [],
+    fame = 0,
   } = {}) {
-    super({ id, name, level, maxHp, atk, def, spd, gold, skills });
+    super({ id, name, level, maxHp, maxMp, atk, def, spd, gold, skills });
     this.xp = xp;
     this.xpToLevelUp = xpToLevelUp;
     this.inventory = inventory;
+    this.fame = fame;
+    this.equippedActives = equippedActives;
+    this.equippedPassives = equippedPassives;
   }
 
   /**
@@ -103,6 +114,9 @@ class Player extends Entity {
       xp: this.xp,
       xpToLevelUp: this.xpToLevelUp,
       inventory: this.inventory,
+      fame: this.fame,
+      equippedActives: this.equippedActives,
+      equippedPassives: this.equippedPassives,
       type: "Player",
     };
   }
@@ -136,9 +150,12 @@ class Player extends Entity {
       spd: json.spd,
       gold: json.gold,
       skills: json.skills,
+      equippedActives: json.equippedActives || [],
+      equippedPassives: json.equippedPassives || [],
       xp: json.xp,
       xpToLevelUp: json.xpToLevelUp,
       inventory: json.inventory,
+      fame: json.fame,
     });
   }
 }

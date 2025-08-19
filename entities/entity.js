@@ -12,17 +12,19 @@ class Entity {
    * @param {string} [options.name="???"] - Nome da entidade.
    * @param {number} [options.level=1] - Nível da entidade.
    * @param {number} [options.maxHp=100] - Pontos de vida máximos.
+   * @param {number} [options.maxMp=50] - Pontos de mana máximos.
    * @param {number} [options.atk=10] - Pontos de ataque.
    * @param {number} [options.def=5] - Pontos de defesa.
    * @param {number} [options.spd=5] - Pontos de velocidade.
    * @param {number} [options.gold=0] - Quantidade de ouro.
    * @param {Array} [options.skills=[]] - Lista de habilidades da entidade.
-   */
+  */
   constructor({
     id = null,
     name = "???",
     level = 1,
     maxHp = 100,
+    maxMp = 50,
     atk = 10,
     def = 5,
     spd = 5,
@@ -35,6 +37,9 @@ class Entity {
 
     this.maxHp = maxHp;
     this.hp = maxHp;
+
+    this.maxMp = maxMp;
+    this.mp = maxMp;
 
     this.atk = atk;
     this.def = def;
@@ -86,6 +91,15 @@ class Entity {
   }
 
   /**
+   * Restaura pontos de mana da entidade.
+   *
+   * @param {number} amount - Quantidade de MP a ser restaurada.
+   */
+  restoreMana(amount) {
+    this.mp = Math.min(this.mp + amount, this.maxMp);
+  }
+
+  /**
    * Aplica um efeito de status à entidade.
    * 
    * @param {string} effect - Nome do efeito a ser aplicado.
@@ -125,6 +139,8 @@ class Entity {
       level: this.level,
       hp: this.hp,
       maxHp: this.maxHp,
+      mp: this.mp,
+      maxMp: this.maxMp,
       atk: this.atk,
       def: this.def,
       spd: this.spd,
