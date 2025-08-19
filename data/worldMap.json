@@ -52,6 +52,12 @@
                                     "type": "inn",
                                     "name": "Estalagem Luz da Aurora",
                                     "description": "Uma boa noite de descanso nunca é demais."
+                                  },
+                                  {
+                                    "id": "fazenda_vila",
+                                    "type": "farm",
+                                    "name": "Fazenda da Vila",
+                                    "description": "Campo aberto onde as ovelhas pastam durante o dia."
                                   }
                                 ]
                               }
