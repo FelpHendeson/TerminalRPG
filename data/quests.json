@@ -1,6 +1,7 @@
 {
   "quests": [
   {
+    {
       "id": "main_001",
       "name": "A Chegada",
       "type": "primary",
@@ -23,6 +24,8 @@
       "conditions": {
         "minLevel": 1,
         "relations": { "chefe_vila": 5 }
+      "conditions": {
+        "minLevel": 1
       }
     }
   ]

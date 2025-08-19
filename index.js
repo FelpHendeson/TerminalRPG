@@ -274,6 +274,11 @@ class TerminalRPG {
           detailLines.push(`Recompensas: ${rewards}`);
         }
         InterfaceUtils.drawBox(detailLines, 60);
+        InterfaceUtils.drawBox([
+          `[${q.name}]`,
+          `[${q.type.toUpperCase()}]`,
+          q.description,
+        ], 60);
         console.log();
 
         const accept = await InterfaceUtils.confirm("Aceitar esta missão?");

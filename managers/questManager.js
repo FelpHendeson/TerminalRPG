@@ -14,6 +14,7 @@ const path = require('path');
  * @property {{ minLevel?: number, fame?: number, relations?: Object<string, number> }} [conditions]
  * @property {Array<string>} [objectives]
  * @property {Object<string, number>} [rewards]
+ * @property {{ minLevel?: number }} [conditions]
  */
 
 /**

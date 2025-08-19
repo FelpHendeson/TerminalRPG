@@ -50,6 +50,8 @@ equivale a 60 segundos do mundo real. Dormir na estalagem avança 8 horas e
 restaura 50% de HP e MP. Interagir ou passar tempo com NPCs também pode
 avançar o relógio. O jogador possui um atributo de fama (`fame`) que pode ser
 recompensado em missões e altera diálogos com NPCs.
+=======
+recebe o `id` da localidade onde a missão fica disponível.
 
 ## Getting started
 
