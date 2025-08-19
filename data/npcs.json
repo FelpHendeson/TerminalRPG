@@ -1,0 +1,14 @@
+{
+  "npcs": [
+    {
+      "id": "chefe_vila",
+      "name": "Chefe da Vila",
+      "role": "chieftain",
+      "dialogue": ["Saudações, viajante."],
+      "dialogueFamous": ["Ah, o herói de quem todos falam!"],
+      "schedules": [
+        { "location": "vila_inicial", "start": 8, "end": 20 }
+      ]
+    }
+  ]
+}

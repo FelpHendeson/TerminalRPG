@@ -3,6 +3,8 @@ const GameManager = require("./managers/gameManager");
 const CharacterCreator = require("./core/characterCreator");
 const MapManager = require("./managers/mapManager");
 const QuestManager = require("./managers/questManager");
+const NPCManager = require("./managers/npcManager");
+const TimeManager = require("./managers/timeManager");
 const Player = require("./entities/player");
 
 /**
@@ -18,6 +20,8 @@ class TerminalRPG {
     this.game = new GameManager();
     this.map = new MapManager(); // carrega e indexa worldMap.json
     this.quest = new QuestManager(); // gerencia sistema de missões
+    this.npc = new NPCManager(); // gerencia NPCs
+    this.time = new TimeManager(); // ciclo de tempo
     this.isRunning = true;
   }
 
@@ -56,6 +60,7 @@ class TerminalRPG {
       break; // saiu do loop e segue para o menu principal
     }
 
+    this.time.start(this.game);
     await this.showMainMenu();
   }
 
@@ -69,6 +74,7 @@ class TerminalRPG {
     while (this.isRunning) {
       const choices = [
         { name: "Mapa", value: "map", symbol: "[M]" },
+        { name: "NPCs no local", value: "npcs", symbol: "[N]" },
         { name: "Menu de Missões", value: "quests", symbol: "[Q]" },
         { name: "Perfil do Jogador", value: "profile", symbol: "[P]" },
         { name: "Configurações", value: "configs", symbol: "[C]" },
@@ -91,6 +97,9 @@ class TerminalRPG {
       switch (selectedChoice) {
         case "map":
           await this.showMap();
+          break;
+        case "npcs":
+          await this.showNPCs();
           break;
         case "quests":
           await this.showQuests();
@@ -198,6 +207,9 @@ class TerminalRPG {
 
       // Se o novo destino for 'local' (ex.: loja_armas), aqui você abre o sistema correspondente
       // ex.: if (dest.type === 'local' && dest.id === 'loja_armas') openWeaponShop();
+      if (dest.type === 'inn') {
+        await this.openInn();
+      }
     }
   }
 
@@ -246,6 +258,22 @@ class TerminalRPG {
 
         const q = this.quest.getQuestById(picked);
         InterfaceUtils.clearScreen();
+        const detailLines = [
+          `[${q.name}]`,
+          `[${q.type.toUpperCase()}]`,
+          q.description,
+        ];
+        if (q.objectives?.length) {
+          detailLines.push('Objetivos:');
+          q.objectives.forEach((o) => detailLines.push(`- ${o}`));
+        }
+        if (q.rewards) {
+          const rewards = Object.entries(q.rewards)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ');
+          detailLines.push(`Recompensas: ${rewards}`);
+        }
+        InterfaceUtils.drawBox(detailLines, 60);
         InterfaceUtils.drawBox([
           `[${q.name}]`,
           `[${q.type.toUpperCase()}]`,
@@ -279,6 +307,98 @@ class TerminalRPG {
   }
 
   /**
+   * Lista NPCs presentes na localização atual e permite interagir.
+   */
+  async showNPCs() {
+    InterfaceUtils.clearScreen();
+    InterfaceUtils.drawBox("[N] NPCS", 60);
+    console.log();
+
+    const here = this.map.getCurrentLocation(this.game);
+    const hour = this.time.getHour(this.game);
+    const npcs = here ? this.npc.getNPCsAt(here.id, hour) : [];
+    if (!npcs.length) {
+      InterfaceUtils.showInfo("Ninguém por perto.");
+      await InterfaceUtils.waitForInput();
+      return;
+    }
+    const opts = npcs.map((n) => ({ name: n.name, value: n.id, symbol: ">" }));
+    const pick = await InterfaceUtils.showChoices("Com quem deseja falar?", opts, true);
+    if (pick === "back") return;
+    const npc = this.npc.getNPCById(pick);
+    if (!npc) return;
+
+    await this.interactWithNPC(npc);
+  }
+
+  async interactWithNPC(npc) {
+    while (true) {
+      InterfaceUtils.clearScreen();
+      const fameDialogue =
+        this.game.player.fame >= 50 && npc.dialogueFamous.length
+          ? npc.dialogueFamous[0]
+          : npc.dialogue[0] || "...";
+      InterfaceUtils.drawBox([
+        `[${npc.name}]`,
+        fameDialogue,
+        `Relacionamento: ${this.getRelationship(npc.id)}`,
+      ], 60);
+      console.log();
+
+      const choice = await InterfaceUtils.showChoices(
+        "O que deseja fazer?",
+        [
+          { name: "Conversar", value: "talk", symbol: "[C]" },
+          { name: "Passar tempo", value: "spend", symbol: "[T]" },
+          { name: "Voltar", value: "back", symbol: "[B]" },
+        ],
+        false
+      );
+
+      if (choice === "back") return;
+      if (choice === "talk") {
+        this.changeRelationship(npc.id, 1);
+        InterfaceUtils.showInfo("Vocês conversam um pouco.");
+        await InterfaceUtils.waitForInput();
+      }
+      if (choice === "spend") {
+        this.changeRelationship(npc.id, 2);
+        this.time.advanceHour(this.game, 1);
+        InterfaceUtils.showInfo("O tempo passa enquanto vocês interagem.");
+        await InterfaceUtils.waitForInput();
+      }
+    }
+  }
+
+  changeRelationship(npcId, delta) {
+    this.game.flags.npcRelations = this.game.flags.npcRelations || {};
+    const cur = this.game.flags.npcRelations[npcId] || 0;
+    this.game.flags.npcRelations[npcId] = cur + delta;
+  }
+
+  getRelationship(npcId) {
+    return this.game.flags.npcRelations?.[npcId] || 0;
+  }
+
+  /**
+   * Abre o menu da estalagem, permitindo dormir para recuperar HP/MP e avançar o tempo.
+   */
+  async openInn() {
+    InterfaceUtils.clearScreen();
+    InterfaceUtils.drawBox("ESTALAGEM", 40);
+    console.log();
+    const confirm = await InterfaceUtils.confirm("Deseja dormir? (8 horas)");
+    if (confirm) {
+      const p = this.game.player;
+      p.heal(Math.floor(p.maxHp * 0.5));
+      p.restoreMana(Math.floor(p.maxMp * 0.5));
+      this.time.advanceHour(this.game, 8);
+      InterfaceUtils.showSuccess("Você descansou e se sente revigorado.");
+      await InterfaceUtils.waitForInput();
+    }
+  }
+
+  /**
    * Exibe o perfil detalhado do jogador.
    * Mostra todas as estatísticas do personagem em uma interface compacta.
    *
@@ -299,11 +419,11 @@ class TerminalRPG {
     const profileLines = [
       `[NOME: ${p.name}].`,
       `[NÍVEL: ${p.level} (${p.xp}/${p.xpToLevelUp})].`,
-      `[HP: ${p.hp}/${p.maxHp}].`,
+      `[HP: ${p.hp}/${p.maxHp}] [MP: ${p.mp}/${p.maxMp}].`,
       `[FORÇA/ATK: ${p.atk}].`,
       `[AGILIDADE/SPD: ${p.spd}].`,
       `[FÍSICO/DEF: ${p.def}].`,
-      `[OURO: ${p.gold}].`,
+      `[OURO: ${p.gold}] [FAMA: ${p.fame}].`,
     ];
 
     // janela compacta no mesmo estilo do HUD
@@ -528,13 +648,16 @@ class TerminalRPG {
     const p = this.game.player;
     if (!p) return;
 
+    const here = this.map.getCurrentLocation(this.game);
     const lines = [
       `[NOME: ${p.name}].`,
       `[NÍVEL: ${p.level}].`,
-      `[HP: ${p.hp}/${p.maxHp}].`,
-      `[OURO: ${p.gold}].`,
-    ];
-    // largura ~40 deixa parecido com a imagem; ajuste se quiser
+      `[HP: ${p.hp}/${p.maxHp}] [MP: ${p.mp}/${p.maxMp}].`,
+      `[OURO: ${p.gold}] [FAMA: ${p.fame}].`,
+      here ? `[LOCAL: ${here.name}]` : '',
+      `[HORA: ${this.time.getFormattedTime(this.game)}]`,
+    ].filter(Boolean);
+
     InterfaceUtils.drawBox(lines, 40);
     console.log();
   }

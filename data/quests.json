@@ -1,11 +1,14 @@
 {
   "quests": [
+  {
     {
       "id": "main_001",
       "name": "A Chegada",
       "type": "primary",
       "description": "Fale com o ancião da Vila Inicial para iniciar sua jornada.",
       "location": "vila_inicial",
+      "objectives": ["Conversar com o ancião"],
+      "rewards": { "xp": 50, "gold": 10, "fame": 5 },
       "conditions": {
         "minLevel": 1
       }
@@ -16,6 +19,11 @@
       "type": "secondary",
       "description": "Os lobos estão ameaçando as colheitas. Derrote 5 lobos.",
       "location": "vila_inicial",
+      "objectives": ["Derrotar 5 lobos"],
+      "rewards": { "xp": 20, "gold": 5, "fame": 2 },
+      "conditions": {
+        "minLevel": 1,
+        "relations": { "chefe_vila": 5 }
       "conditions": {
         "minLevel": 1
       }

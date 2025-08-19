@@ -11,6 +11,9 @@ const path = require('path');
  * @property {QuestType} type
  * @property {string} description
  * @property {string} [location] - ID da localidade onde a missão está disponível
+ * @property {{ minLevel?: number, fame?: number, relations?: Object<string, number> }} [conditions]
+ * @property {Array<string>} [objectives]
+ * @property {Object<string, number>} [rewards]
  * @property {{ minLevel?: number }} [conditions]
  */
 
@@ -57,6 +60,13 @@ class QuestManager {
       if (status) return false;
       if (q.location && q.location !== currentLoc) return false;
       if (q.conditions?.minLevel && game.player.level < q.conditions.minLevel) return false;
+      if (q.conditions?.fame && game.player.fame < q.conditions.fame) return false;
+      if (q.conditions?.relations) {
+        for (const [npcId, min] of Object.entries(q.conditions.relations)) {
+          const rel = game.flags?.npcRelations?.[npcId] || 0;
+          if (rel < min) return false;
+        }
+      }
       return true;
     });
   }
