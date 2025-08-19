@@ -1,6 +1,6 @@
 {
   "quests": [
-  {
+    {
       "id": "main_001",
       "name": "A Chegada",
       "type": "primary",

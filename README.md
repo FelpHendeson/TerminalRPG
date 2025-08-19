@@ -13,14 +13,14 @@ As missões são armazenadas em `data/quests.json` e possuem o formato:
 
 ```
 {
-  "id": "main_001",
-  "name": "A Chegada",
-  "type": "primary", // ou "secondary"
-  "description": "Fale com o ancião...",
-  "location": "vila_inicial",
-  "objectives": ["Conversar com o ancião"],
-  "rewards": { "xp": 50, "gold": 10, "fame": 5 },
-  "conditions": { "minLevel": 1, "relations": { "chefe_vila": 5 } }
+"id": "main_001",
+"name": "A Chegada",
+"type": "primary", // ou "secondary"
+"description": "Fale com o ancião...",
+"location": "vila_inicial",
+"objectives": ["Conversar com o ancião"],
+"rewards": { "xp": 50, "gold": 10, "fame": 5 },
+"conditions": { "minLevel": 1, "relations": { "chefe_vila": 5 } }
 }
 ```
 
@@ -40,9 +40,9 @@ ter `choices` levando a outros eventos:
 
 ```
 {
-  "id": "start",
-  "text": "Você desperta sem memória...",
-  "choices": [{ "text": "Seguir", "next": "intro" }]
+"id": "start",
+"text": "Você desperta sem memória...",
+"choices": [{ "text": "Seguir", "next": "intro" }]
 }
 ```
 
@@ -61,11 +61,11 @@ presentes em determinadas localidades.
 
 ```
 {
-  "id": "chefe_vila",
-  "name": "Chefe da Vila",
-  "dialogue": ["Saudações, viajante."],
-  "dialogueFamous": ["Ah, o herói de quem todos falam!"],
-  "schedules": [ { "location": "vila_inicial", "start": 8, "end": 20 } ]
+"id": "chefe_vila",
+"name": "Chefe da Vila",
+"dialogue": ["Saudações, viajante."],
+"dialogueFamous": ["Ah, o herói de quem todos falam!"],
+"schedules": [ { "location": "vila_inicial", "start": 8, "end": 20 } ]
 }
 ```
 
@@ -76,7 +76,12 @@ restaura 50% de HP e MP. Interagir ou passar tempo com NPCs também pode
 avançar o relógio. O jogador possui um atributo de fama (`fame`) que pode ser
 recompensado em missões e altera diálogos com NPCs.
 
+---
+
 ## Getting started
+
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 

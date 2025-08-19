@@ -279,6 +279,11 @@ class TerminalRPG {
           detailLines.push(`Recompensas: ${rewards}`);
         }
         InterfaceUtils.drawBox(detailLines, 60);
+        InterfaceUtils.drawBox([
+          `[${q.name}]`,
+          `[${q.type.toUpperCase()}]`,
+          q.description,
+        ], 60);
         console.log();
 
         const accept = await InterfaceUtils.confirm("Aceitar esta missão?");
@@ -310,6 +315,8 @@ class TerminalRPG {
         this.quest.completeQuest(this.game, picked);
         this.game.save();
         InterfaceUtils.showSuccess("Missão concluída!");
+        const lines = active.map((q) => `[${q.type.toUpperCase()}] ${q.name}`);
+        InterfaceUtils.drawBox(lines, 60);
         await InterfaceUtils.waitForInput();
       }
     }
