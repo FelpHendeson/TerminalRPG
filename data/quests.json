@@ -1,0 +1,24 @@
+{
+  "quests": [
+    {
+      "id": "main_001",
+      "name": "A Chegada",
+      "type": "primary",
+      "description": "Fale com o ancião da Vila Inicial para iniciar sua jornada.",
+      "location": "vila_inicial",
+      "conditions": {
+        "minLevel": 1
+      }
+    },
+    {
+      "id": "side_001",
+      "name": "Caça aos Lobos",
+      "type": "secondary",
+      "description": "Os lobos estão ameaçando as colheitas. Derrote 5 lobos.",
+      "location": "vila_inicial",
+      "conditions": {
+        "minLevel": 1
+      }
+    }
+  ]
+}
